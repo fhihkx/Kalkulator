@@ -54,9 +54,9 @@
         .toggle-section { display: none; }
         /* dünneres Pluszeichen */
         #offer-icon, #timeline-icon { font-weight: 500; }
-
         .toggle-switch {
-            position: relative; display: inline-block; width: 51px; height: 31px;
+            position: relative; display: inline-block;
+            width: 51px; height: 31px;
         }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -79,13 +79,14 @@
 <body class="text-slate-800 min-h-screen p-4 py-16">
 
 <div class="w-full max-w-5xl mx-auto">
-    <!-- Kopfbereich -->
+    <!-- Header -->
     <header class="text-left mb-6">
         <h1 class="text-4xl sm:text-5xl font-bold uppercase"
             style="color: #032659; letter-spacing: 0.06em;">FINANZIERUNGSKALKULATOR</h1>
         <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">
             Geben Sie die Parameter ein, um Ihre Finanzierung zu kalkulieren.
         </p>
+        <!-- Info-Button -->
         <div class="flex items-center mt-4">
             <div class="relative inline-block">
                 <span id="info-button" class="text-slate-600 bg-gray-200 hover:bg-gray-300 rounded-full px-2 py-0.5 text-sm font-semibold cursor-help">
@@ -233,7 +234,7 @@
         </div>
     </main>
 
-    <!-- Angebot erstellen (nun oberhalb des Finanzierungsverlaufs) -->
+    <!-- Angebot erstellen (oberhalb des Finanzierungsverlaufs) -->
     <section class="w-full mt-8">
         <div class="panel rounded-2xl shadow-lg p-6">
             <button id="offer-toggle"
@@ -272,7 +273,7 @@
                             <input type="text" id="vorname" class="w-full form-input-underline text-lg">
                         </div>
                         <div>
-                            <label for "nachname"
+                            <label for="nachname"
                                    class="block text-sm font-medium text-slate-600 mb-1">Nachname</label>
                             <input type="text" id="nachname" class="w-full form-input-underline text-lg">
                         </div>
@@ -335,10 +336,10 @@
                             <option>Gebraucht</option>
                         </select>
                     </div>
-                    <!-- Download Button -->
-                    <div class="mt-8">
+                    <!-- Download-Button -->
+                    <div class="mt-8 flex justify-end">
                         <button type="button" id="download-pdf-btn"
-                                class="w-full md:w-1/2 mx-auto bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
+                                class="w-full md:w-1/2 bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
                             Angebot herunterladen
                         </button>
                     </div>
@@ -363,7 +364,7 @@
 </div>
 
 <script>
-    // DOM Elemente deklarieren
+    // DOM-Elemente
     const anzahlungToggle = document.getElementById('anzahlung-toggle');
     const restwertToggle = document.getElementById('restwert-toggle');
     const margeToggle = document.getElementById('marge-toggle');
@@ -393,11 +394,10 @@
     let costChart = null;
     let timelineChart = null;
 
-    // Tooltip Hover
+    // Tooltip
     infoButton.addEventListener('mouseenter', () => infoTooltip.classList.remove('hidden'));
     infoButton.addEventListener('mouseleave', () => infoTooltip.classList.add('hidden'));
 
-    // Unformat & Format
     function unformat(str) {
         if (typeof str !== 'string' || !str) return 0;
         return parseFloat(str.replace(/\./g, '').replace(',', '.'));
@@ -453,7 +453,7 @@
         return ((low + high) / 2) * 12;
     }
 
-    // Hauptberechnung
+    // Berechnung
     function performCalculation() {
         const av = unformat(document.getElementById('anschaffungswert').value);
         const lz = parseInt(document.getElementById('laufzeit').value) || 0;
@@ -537,11 +537,11 @@
                             const chart = legend.chart;
                             chart.toggleDataVisibility(idx);
                             chart.update();
-                            let sumVisible = 0;
+                            let visibleSum = 0;
                             chart.getDatasetMeta(0).data.forEach((arc, i) => {
-                                if (chart.getDataVisibility(i)) sumVisible += chart.data.datasets[0].data[i];
+                                if (chart.getDataVisibility(i)) visibleSum += chart.data.datasets[0].data[i];
                             });
-                            gesamtkostenEl.value = formatLocale(sumVisible, { style: 'currency', currency: 'EUR' });
+                            gesamtkostenEl.value = formatLocale(visibleSum, { style: 'currency', currency: 'EUR' });
                         }
                     },
                     tooltip: {
@@ -629,17 +629,21 @@
     }
     function hideError() { errorText.textContent = ''; }
 
-    // Toggle für Euro/% einstellen
+    // Prozent/Euro-Toggles
     function setupToggle(toggleEl, inputEl, unitEl) {
         toggleEl.addEventListener('change', () => {
             const av = unformat(document.getElementById('anschaffungswert').value);
             const current = unformat(inputEl.value);
             if (toggleEl.checked) {
                 unitEl.textContent = '(%)';
-                if (av > 0) inputEl.value = formatLocale((current / av) * 100, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                if (av > 0) {
+                    inputEl.value = formatLocale((current / av) * 100, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
             } else {
                 unitEl.textContent = '(€)';
-                if (av > 0) inputEl.value = formatLocale((current / 100) * av, { maximumFractionDigits: 0 });
+                if (av > 0) {
+                    inputEl.value = formatLocale((current / 100) * av, { maximumFractionDigits: 0 });
+                }
             }
             performCalculation();
         });
@@ -708,10 +712,7 @@
         pdf.text('Leasingangebot', 15, 20);
         pdf.setFontSize(12);
         let y = 35;
-        const addLine = (label, val) => {
-            pdf.text(`${label}: ${val}`, 15, y);
-            y += 6;
-        };
+        const addLine = (label, val) => { pdf.text(`${label}: ${val}`, 15, y); y += 6; };
         addLine('Anschaffungswert', values.anschaffungswert);
         addLine('Laufzeit', values.laufzeit + ' Monate');
         addLine('Anzahlung', values.anzahlung);
