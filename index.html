@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -78,9 +77,17 @@
 <body class="text-slate-800 min-h-screen p-4 py-8">
     
     <div class="w-full max-w-5xl mx-auto">
-        <header class="text-left mb-16">
+        <header class="text-left mb-6">
             <h1 class="text-4xl sm:text-5xl font-bold uppercase" style="color: #032659; letter-spacing: 0.06em;">LEASINGKALKULATOR</h1>
             <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">Geben Sie die Parameter ein, um Ihre Finanzierung zu kalkulieren.</p>
+            <!-- Info-Button mit Tooltip -->
+            <div class="flex items-center mt-4">
+                <span id="info-button" class="relative text-slate-600 bg-gray-200 hover:bg-gray-300 rounded-full px-2 py-0.5 text-sm font-semibold cursor-default">i
+                    <span id="info-tooltip" class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-white border border-gray-300 rounded p-2 text-xs text-slate-700 shadow-md hidden">
+                        Dieser Leasingkalkulator hilft Ihnen, die monatliche Leasingrate, die Gesamtkosten und den indikativen Zinssatz auf Basis Ihrer Eingaben zu berechnen.
+                    </span>
+                </span>
+            </div>
         </header>
 
         <main class="w-full">
@@ -92,11 +99,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                 <div>
                                     <label for="anschaffungswert" class="block text-sm font-medium text-slate-600 mb-1">Anschaffungswert (€)</label>
-                                    <input type="text" id="anschaffungswert" value="150.000" class="w-full form-input-underline text-lg">
+                                    <input type="text" id="anschaffungswert" value="0" class="w-full form-input-underline text-lg">
                                 </div>
                                 <div>
                                     <label for="laufzeit" class="block text-sm font-medium text-slate-600 mb-1">Laufzeit (Monate)</label>
-                                    <input type="number" id="laufzeit" value="60" class="w-full form-input-underline text-lg">
+                                    <input type="number" id="laufzeit" value="0" class="w-full form-input-underline text-lg">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
@@ -113,7 +120,7 @@
                                 <div class="flex items-end">
                                     <div class="w-full">
                                         <label for="restwert" class="block text-sm font-medium text-slate-600 mb-1">Restwert <span id="restwert-unit">(€)</span></label>
-                                        <input type="text" id="restwert" value="15.000" class="w-full form-input-underline text-lg">
+                                        <input type="text" id="restwert" value="0" class="w-full form-input-underline text-lg">
                                     </div>
                                      <label class="toggle-switch ml-4 flex-shrink-0">
                                         <input type="checkbox" id="restwert-toggle">
@@ -124,12 +131,18 @@
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                 <div>
                                     <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">Basiszins (% p.a.)</label>
-                                    <input type="text" id="basiszins" value="6,00" class="w-full form-input-underline text-lg">
+                                    <input type="text" id="basiszins" value="0" class="w-full form-input-underline text-lg">
                                 </div>
-                                 <div>
-                                    <label for="barwertmarge" class="block text-sm font-medium text-slate-600 mb-1">Barwertmarge (€)</label>
-                                    <input type="text" id="barwertmarge" value="30.000" class="w-full form-input-underline text-lg">
-                                </div>
+                                 <div class="flex items-end">
+                                    <div class="w-full">
+                                        <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">Marge Gesamt <span id="marge-unit">(€)</span></label>
+                                        <input type="text" id="margegesamt" value="0" class="w-full form-input-underline text-lg">
+                                    </div>
+                                    <label class="toggle-switch ml-4 flex-shrink-0">
+                                        <input type="checkbox" id="marge-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                 </div>
                             </div>
                         </div>
                         
@@ -189,8 +202,10 @@
         // DOM Elements
         const anzahlungToggle = document.getElementById('anzahlung-toggle');
         const restwertToggle = document.getElementById('restwert-toggle');
+        const margeToggle = document.getElementById('marge-toggle');
         const anzahlungUnit = document.getElementById('anzahlung-unit');
         const restwertUnit = document.getElementById('restwert-unit');
+        const margeUnit = document.getElementById('marge-unit');
         const calculateBtn = document.getElementById('calculate-btn');
         const resultContainer = document.getElementById('result-container');
         const placeholderContainer = document.getElementById('placeholder-container');
@@ -204,9 +219,19 @@
         const timelineToggle = document.getElementById('timeline-toggle');
         const timelineContainer = document.getElementById('timeline-container');
         const toggleIcon = document.getElementById('toggle-icon');
+        const infoButton = document.getElementById('info-button');
+        const infoTooltip = document.getElementById('info-tooltip');
 
         let costChart = null;
         let timelineChart = null;
+        
+        // --- Tooltip hover ---
+        infoButton.addEventListener('mouseenter', () => {
+            infoTooltip.classList.remove('hidden');
+        });
+        infoButton.addEventListener('mouseleave', () => {
+            infoTooltip.classList.add('hidden');
+        });
         
         // --- UTILITY & FORMATTING ---
         function unformat(str) {
@@ -281,13 +306,14 @@
             const av = unformat(getEl('anschaffungswert').value);
             const lz = parseInt(getEl('laufzeit').value) || 0;
             const bz = unformat(getEl('basiszins').value);
-            const bwm = unformat(getEl('barwertmarge').value);
             
             const azInput = unformat(getEl('anzahlung').value);
             const rwInput = unformat(getEl('restwert').value);
+            const margeInput = unformat(getEl('margegesamt').value);
             
             const az = getEl('anzahlung-toggle').checked ? (azInput / 100) * av : azInput;
             const rw = getEl('restwert-toggle').checked ? (rwInput / 100) * av : rwInput;
+            const marge = getEl('marge-toggle').checked ? (margeInput / 100) * av : margeInput;
 
             if (av <= 0 || lz <= 0) {
                 showError("Anschaffungswert und Laufzeit müssen größer als 0 sein.");
@@ -295,7 +321,7 @@
             }
             hideError();
             
-            const principal = av - az + bwm;
+            const principal = av - az + marge;
             const monatszins_basis = bz / 100 / 12;
 
             // negative interne Rate (Zahlungsausgabe)
@@ -382,7 +408,7 @@
         }
 
         function showError(message) {
-            resultText.textContent = ''; errorText.textcontent = message;
+            resultText.textContent = ''; errorText.textContent = message;
             indikativerZinsEl.value = ''; leasingfaktorEl.value = ''; gesamtkostenEl.value = '';
             resultContainer.classList.add('hidden');
             if(costChart) costChart.destroy(); if(timelineChart) timelineChart.destroy();
@@ -411,19 +437,20 @@
         }
         setupToggle(anzahlungToggle, document.getElementById('anzahlung'), anzahlungUnit);
         setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
+        setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
         
-        document.querySelectorAll('input[type="text"]').forEach(input => input.addEventListener('input', formatInput));
+        document.querySelectorAll('input[type=\"text\"]').forEach(input => input.addEventListener('input', formatInput));
         document.getElementById('laufzeit').addEventListener('input', performCalculation);
         
         calculateBtn.addEventListener('click', performCalculation);
         timelineToggle.addEventListener('click', () => {
             const container = timelineContainer;
             const icon = toggleIcon;
-            if (container.style.display === "block") {
-                container.style.display = "none";
+            if (container.style.display === \"block\") {
+                container.style.display = \"none\";
                 icon.style.transform = 'rotate(0deg)';
             } else {
-                container.style.display = "block";
+                container.style.display = \"block\";
                 icon.style.transform = 'rotate(180deg)';
                 performCalculation(); 
             }
