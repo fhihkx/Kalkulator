@@ -145,7 +145,10 @@
                                 <!-- Marge Gesamt mit Toggle -->
                                 <div class="flex items-end">
                                     <div class="w-full">
-                                        <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">Marge&nbsp;Gesamt <span id="marge-unit">(€)</span></label>
+                                        <label for="margegesamt" class="flex items-baseline text-sm font-medium text-slate-600 mb-1">
+                                            <span>Marge&nbsp;Gesamt</span>
+                                            <span id="marge-unit" class="ml-1">(€)</span>
+                                        </label>
                                         <input type="text" id="margegesamt" value="0" class="w-full form-input-underline text-lg">
                                     </div>
                                     <label class="toggle-switch ml-4 flex-shrink-0">
@@ -203,7 +206,8 @@
             <div class="panel rounded-2xl shadow-lg p-6">
                 <button id="timeline-toggle" class="w-full flex justify-between items-center text-left">
                     <h2 class="text-xl font-bold text-slate-800">Finanzierungsverlauf anzeigen</h2>
-                    <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    <!-- Plus-Zeichen statt Pfeil -->
+                    <span id="toggle-icon" class="text-3xl font-bold text-slate-800 transition-transform duration-300">+</span>
                 </button>
                 <div id="timeline-container" class="timeline-content mt-4"><canvas id="timeline-chart"></canvas></div>
             </div>
@@ -237,7 +241,7 @@
         let costChart = null;
         let timelineChart = null;
         
-        // --- Tooltip hover ---
+        // Tooltip hover
         infoButton.addEventListener('mouseenter', () => {
             infoTooltip.classList.remove('hidden');
         });
@@ -245,7 +249,7 @@
             infoTooltip.classList.add('hidden');
         });
         
-        // --- UTILITY & FORMATTING ---
+        // Utility & Formatting
         function unformat(str) {
             if (typeof str !== 'string' || !str) return 0;
             return parseFloat(str.replace(/\./g, '').replace(',', '.'));
@@ -284,7 +288,7 @@
             }
         }
 
-        // --- CORE CALCULATIONS (Excel compatible) ---
+        // Financial functions
         function PMT(rate, nper, pv, fv = 0) {
             if (rate === 0) return -(pv + fv) / nper;
             const pvif = Math.pow(1 + rate, nper);
@@ -312,6 +316,7 @@
             return ((rateLow + rateHigh) / 2) * 12; 
         }
 
+        // Core calculation
         function performCalculation() {
             const getEl = (id) => document.getElementById(id);
             const av = unformat(getEl('anschaffungswert').value);
@@ -339,7 +344,6 @@
             const leasingrate = -leasingrateInternal;
             
             const finanzierungsbetrag = av - az;
-
             displayResult(leasingrate, az, rw, av, lz);
             
             const indikativerZins = RATE(lz, leasingrateInternal, finanzierungsbetrag, -rw);
@@ -350,14 +354,15 @@
             }
         }
 
-        // --- UI UPDATE FUNCTIONS ---
+        // UI updates
         function displayResult(rate, anzahlung, restwert, av, monate) {
             resultContainer.classList.remove('hidden');
             resultContainer.classList.add('fade-in');
             placeholderContainer.classList.add('hidden');
             resultText.textContent = formatLocale(rate, { style: 'currency', currency: 'EUR' });
             
-            const gesamtkosten = anzahlung + (rate * (monate || 0));
+            // Gesamtkosten: Anzahlung + Summe der Raten + Restwert
+            const gesamtkosten = anzahlung + (rate * (monate || 0)) + restwert;
             gesamtkostenEl.value = formatLocale(gesamtkosten, { style: 'currency', currency: 'EUR' });
             
             const leasingfaktor = av > 0 ? (rate / av) * 100 : 0;
@@ -369,17 +374,58 @@
         function updateCostChart(anzahlung, summeRaten, restwert) {
             if (costChart) costChart.destroy();
             const ctx = costChartCanvas.getContext('2d');
+            const datasetValues = [anzahlung, summeRaten, restwert];
+            const fullTotal = datasetValues.reduce((a, b) => a + b, 0);
             costChart = new Chart(ctx, {
-                type: 'doughnut', data: {
+                type: 'doughnut', 
+                data: {
                     labels: ['Anzahlung', 'Summe der Raten', 'Restwert'],
                     datasets: [{
-                        data: [anzahlung, summeRaten, restwert],
+                        data: datasetValues,
                         backgroundColor: ['#4169E1', '#F0E68C', '#B0C4DE'],
                         borderColor: '#F8F9FA', borderWidth: 5, hoverOffset: 10
                     }]
                 },
-                options: { responsive: true, cutout: '75%', plugins: { legend: { position: 'bottom', align: 'start', labels: { color: '#6C757D', padding: 20, boxWidth: 12, font: { size: 14, family: "'Montserrat', sans-serif" } } }, tooltip: { callbacks: { label: (c) => `${c.label}: ${formatLocale(c.parsed, { style: 'currency', currency: 'EUR' })}` } } } }
+                options: { 
+                    responsive: true, 
+                    cutout: '75%',
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            align: 'start',
+                            labels: { 
+                                color: '#6C757D', 
+                                padding: 20, 
+                                boxWidth: 12, 
+                                font: { size: 14, family: "'Montserrat', sans-serif" } 
+                            },
+                            // Beim Klick Legende und Gesamtkosten aktualisieren
+                            onClick: function (e, legendItem, legend) {
+                                const index = legendItem.index;
+                                const ci = legend.chart;
+                                // Standard-Toggle
+                                ci.toggleDataVisibility(index);
+                                ci.update();
+                                // Neu berechnen: nur sichtbare Segmente
+                                let sumVisible = 0;
+                                ci.getDatasetMeta(0).data.forEach((arc, i) => {
+                                    if (ci.getDataVisibility(i)) {
+                                        sumVisible += ci.data.datasets[0].data[i];
+                                    }
+                                });
+                                gesamtkostenEl.value = formatLocale(sumVisible, { style: 'currency', currency: 'EUR' });
+                            }
+                        },
+                        tooltip: { 
+                            callbacks: { 
+                                label: (c) => `${c.label}: ${formatLocale(c.parsed, { style: 'currency', currency: 'EUR' })}`
+                            }
+                        } 
+                    }
+                }
             });
+            // Sicherstellen, dass Gesamtkosten dem vollen Wert entsprechen
+            gesamtkostenEl.value = formatLocale(fullTotal, { style: 'currency', currency: 'EUR' });
         }
 
         function generateTimelineChart(startkapital, rate, monate, jahreszins) {
@@ -410,7 +456,25 @@
                         label: 'Tilgungsanteil', data: tilgungsanteile, backgroundColor: '#4169E1', yAxisID: 'y'
                     }]
                 },
-                options: { plugins: { legend: { position: 'top' } }, responsive: true, scales: { x: { stacked: true }, y: { position: 'left', stacked: true, beginAtZero: true, title: { display: true, text: 'Ratenzusammensetzung (€)' } }, y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, title: { display: true, text: 'Restschuld (€)' }, grid: { drawOnChartArea: false } } } }
+                options: { 
+                    plugins: { legend: { position: 'top' } }, 
+                    responsive: true, 
+                    scales: { 
+                        x: { stacked: true }, 
+                        y: { 
+                            position: 'left', stacked: true, beginAtZero: true, 
+                            title: { display: true, text: 'Ratenzusammensetzung (€)' } 
+                        }, 
+                        y1: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'right', 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Restschuld (€)' }, 
+                            grid: { drawOnChartArea: false } 
+                        } 
+                    } 
+                }
             });
         }
 
@@ -426,7 +490,7 @@
         }
         function hideError() { errorText.textContent = ''; }
 
-        // --- EVENT LISTENERS ---
+        // Toggle helper
         function setupToggle(toggleEl, inputEl, unitEl) {
              toggleEl.addEventListener('change', () => {
                 const av = unformat(document.getElementById('anschaffungswert').value);
@@ -450,6 +514,7 @@
         setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
         setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
         
+        // Event listeners
         document.querySelectorAll('input[type="text"]').forEach(input => input.addEventListener('input', formatInput));
         document.getElementById('laufzeit').addEventListener('input', performCalculation);
         
@@ -462,7 +527,7 @@
                 icon.style.transform = 'rotate(0deg)';
             } else {
                 container.style.display = "block";
-                icon.style.transform = 'rotate(180deg)';
+                icon.style.transform = 'rotate(45deg)';
                 performCalculation(); 
             }
         });
