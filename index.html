@@ -82,11 +82,14 @@
             <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">Geben Sie die Parameter ein, um Ihre Finanzierung zu kalkulieren.</p>
             <!-- Info-Button mit Tooltip -->
             <div class="flex items-center mt-4">
-                <span id="info-button" class="relative text-slate-600 bg-gray-200 hover:bg-gray-300 rounded-full px-2 py-0.5 text-sm font-semibold cursor-default">i
-                    <span id="info-tooltip" class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-white border border-gray-300 rounded p-2 text-xs text-slate-700 shadow-md hidden">
-                        Dieser Leasingkalkulator hilft Ihnen, die monatliche Leasingrate, die Gesamtkosten und den indikativen Zinssatz auf Basis Ihrer Eingaben zu berechnen.
+                <div class="relative inline-block">
+                    <span id="info-button" class="text-slate-600 bg-gray-200 hover:bg-gray-300 rounded-full px-2 py-0.5 text-sm font-semibold cursor-help">
+                        i
                     </span>
-                </span>
+                    <div id="info-tooltip" class="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-300 rounded p-2 text-xs text-slate-700 shadow-md z-20 hidden">
+                        Dieser Leasingkalkulator hilft Ihnen, die monatliche Leasingrate, die Gesamtkosten und den indikativen Zinssatz auf Basis Ihrer Eingaben zu berechnen.
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -96,6 +99,7 @@
                     <!-- Left Side: Calculator -->
                     <div class="p-6 sm:p-10 flex flex-col h-full">
                         <div class="space-y-8">
+                            <!-- Anschaffungswert und Laufzeit -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                 <div>
                                     <label for="anschaffungswert" class="block text-sm font-medium text-slate-600 mb-1">Anschaffungswert (€)</label>
@@ -106,6 +110,7 @@
                                     <input type="number" id="laufzeit" value="0" class="w-full form-input-underline text-lg">
                                 </div>
                             </div>
+                            <!-- Anzahlung und Restwert -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                 <div class="flex items-end">
                                     <div class="w-full">
@@ -128,26 +133,33 @@
                                     </label>
                                 </div>
                             </div>
-                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-                                <div>
-                                    <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">Basiszins (% p.a.)</label>
-                                    <input type="text" id="basiszins" value="0" class="w-full form-input-underline text-lg">
-                                </div>
-                                 <div class="flex items-end">
+                            <!-- Basiszins und Marge Gesamt -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                                <!-- Basiszins -->
+                                <div class="flex items-end">
                                     <div class="w-full">
-                                        <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">Marge Gesamt <span id="marge-unit">(€)</span></label>
+                                        <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">Basiszins (% p.a.)</label>
+                                        <input type="text" id="basiszins" value="0" class="w-full form-input-underline text-lg">
+                                    </div>
+                                </div>
+                                <!-- Marge Gesamt mit Toggle -->
+                                <div class="flex items-end">
+                                    <div class="w-full">
+                                        <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">Marge&nbsp;Gesamt <span id="marge-unit">(€)</span></label>
                                         <input type="text" id="margegesamt" value="0" class="w-full form-input-underline text-lg">
                                     </div>
                                     <label class="toggle-switch ml-4 flex-shrink-0">
                                         <input type="checkbox" id="marge-toggle">
                                         <span class="slider"></span>
                                     </label>
-                                 </div>
+                                </div>
                             </div>
                         </div>
                         
                         <div class="mt-auto">
-                            <div class="mt-16"><button id="calculate-btn" class="w-full bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">Berechnen</button></div>
+                            <div class="mt-16">
+                                <button id="calculate-btn" class="w-full bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">Berechnen</button>
+                            </div>
                             <div class="mt-12 pt-8 border-t border-[#ced4da]">
                                  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
                                     <div>
@@ -273,7 +285,6 @@
         }
 
         // --- CORE CALCULATIONS (Excel compatible) ---
-        // PMT-Funktion liefert hier eine negative Rate, wenn pv positiv und fv negativ übergeben werden.
         function PMT(rate, nper, pv, fv = 0) {
             if (rate === 0) return -(pv + fv) / nper;
             const pvif = Math.pow(1 + rate, nper);
@@ -324,20 +335,16 @@
             const principal = av - az + marge;
             const monatszins_basis = bz / 100 / 12;
 
-            // negative interne Rate (Zahlungsausgabe)
             const leasingrateInternal = PMT(monatszins_basis, lz, principal, -rw);
-            // positiver Wert für Anzeige
             const leasingrate = -leasingrateInternal;
             
             const finanzierungsbetrag = av - az;
 
             displayResult(leasingrate, az, rw, av, lz);
             
-            // Zinssatzberechnung: pmt muss negativ übergeben werden (interner Cashflow)
             const indikativerZins = RATE(lz, leasingrateInternal, finanzierungsbetrag, -rw);
             indikativerZinsEl.value = formatLocale(indikativerZins * 100, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
             
-            // Timeline aktualisieren
             if (timelineContainer.style.display === "block") {
                 generateTimelineChart(finanzierungsbetrag, leasingrate, lz, indikativerZins);
             }
@@ -408,10 +415,14 @@
         }
 
         function showError(message) {
-            resultText.textContent = ''; errorText.textContent = message;
-            indikativerZinsEl.value = ''; leasingfaktorEl.value = ''; gesamtkostenEl.value = '';
+            resultText.textContent = '';
+            errorText.textContent = message;
+            indikativerZinsEl.value = '';
+            leasingfaktorEl.value = '';
+            gesamtkostenEl.value = '';
             resultContainer.classList.add('hidden');
-            if(costChart) costChart.destroy(); if(timelineChart) timelineChart.destroy();
+            if (costChart) costChart.destroy();
+            if (timelineChart) timelineChart.destroy();
         }
         function hideError() { errorText.textContent = ''; }
 
@@ -428,29 +439,29 @@
                     }
                 } else {
                     unitEl.textContent = '(€)';
-                     if (av > 0) {
+                    if (av > 0) {
                         inputEl.value = formatLocale((currentValue / 100) * av, { maximumFractionDigits: 0 });
                     }
                 }
-                 performCalculation();
+                performCalculation();
             });
         }
         setupToggle(anzahlungToggle, document.getElementById('anzahlung'), anzahlungUnit);
         setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
         setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
         
-        document.querySelectorAll('input[type=\"text\"]').forEach(input => input.addEventListener('input', formatInput));
+        document.querySelectorAll('input[type="text"]').forEach(input => input.addEventListener('input', formatInput));
         document.getElementById('laufzeit').addEventListener('input', performCalculation);
         
         calculateBtn.addEventListener('click', performCalculation);
         timelineToggle.addEventListener('click', () => {
             const container = timelineContainer;
             const icon = toggleIcon;
-            if (container.style.display === \"block\") {
-                container.style.display = \"none\";
+            if (container.style.display === "block") {
+                container.style.display = "none";
                 icon.style.transform = 'rotate(0deg)';
             } else {
-                container.style.display = \"block\";
+                container.style.display = "block";
                 icon.style.transform = 'rotate(180deg)';
                 performCalculation(); 
             }
