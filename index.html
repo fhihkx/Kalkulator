@@ -17,14 +17,12 @@
             font-family: 'Montserrat', sans-serif;
             background-color: #F8F9FA;
         }
-        /* Animation für Fade-In */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
 
-        /* Inputs mit Unterstrich */
         .form-input-underline {
             background-color: transparent;
             border: none;
@@ -40,7 +38,6 @@
             border-width: 0 0 1px 0;
             box-shadow: none; outline: none;
         }
-
         .result-field {
             background-color: transparent;
             border: none;
@@ -49,62 +46,46 @@
             font-weight: 600;
             font-size: 1.1rem;
         }
-
         .panel {
             background-color: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
-
-        /* Abschnitts-Inhalte standardmäßig ausblenden */
         .toggle-section { display: none; }
+        /* dünneres Pluszeichen */
+        #offer-icon, #timeline-icon { font-weight: 500; }
 
-        /* Plus-Icons etwas dünner */
-        #timeline-icon, #offer-icon {
-            font-weight: 500; /* leichter als bold */
-        }
-
-        /* Toggle-Schalter (Anzahlung/Restwert/Marge) */
         .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 51px; height: 31px;
+            position: relative; display: inline-block; width: 51px; height: 31px;
         }
-        .toggle-switch input {
-            opacity: 0; width: 0; height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            cursor: pointer;
+            position: absolute; cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+            transition: .4s; border-radius: 34px;
         }
         .slider:before {
-            position: absolute;
-            content: "";
+            position: absolute; content: "";
             height: 27px; width: 27px;
             left: 2px; bottom: 2px;
             background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+            transition: .4s; border-radius: 50%;
         }
         input:checked + .slider { background-color: #032659; }
         input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen p-4 py-8">
+<body class="text-slate-800 min-h-screen p-4 py-16">
 
 <div class="w-full max-w-5xl mx-auto">
-    <!-- Header -->
+    <!-- Kopfbereich -->
     <header class="text-left mb-6">
         <h1 class="text-4xl sm:text-5xl font-bold uppercase"
             style="color: #032659; letter-spacing: 0.06em;">FINANZIERUNGSKALKULATOR</h1>
         <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">
             Geben Sie die Parameter ein, um Ihre Finanzierung zu kalkulieren.
         </p>
-        <!-- Info-Button -->
         <div class="flex items-center mt-4">
             <div class="relative inline-block">
                 <span id="info-button" class="text-slate-600 bg-gray-200 hover:bg-gray-300 rounded-full px-2 py-0.5 text-sm font-semibold cursor-help">
@@ -122,7 +103,7 @@
     <main class="w-full">
         <div class="panel rounded-2xl shadow-lg relative">
             <div class="grid grid-cols-1 lg:grid-cols-2">
-                <!-- Eingabeformular -->
+                <!-- Eingabeseite -->
                 <div class="p-6 sm:p-10 flex flex-col h-full">
                     <div class="space-y-8">
                         <!-- Anschaffungswert & Laufzeit -->
@@ -147,8 +128,7 @@
                             <div class="flex items-end">
                                 <div class="w-full">
                                     <label for="anzahlung" class="block text-sm font-medium text-slate-600 mb-1">
-                                        Anzahlung <span id="anzahlung-unit">(€)</span>
-                                    </label>
+                                        Anzahlung <span id="anzahlung-unit">(€)</span></label>
                                     <input type="text" id="anzahlung" value="0"
                                            class="numeric-input w-full form-input-underline text-lg">
                                 </div>
@@ -160,8 +140,7 @@
                             <div class="flex items-end">
                                 <div class="w-full">
                                     <label for="restwert" class="block text-sm font-medium text-slate-600 mb-1">
-                                        Restwert <span id="restwert-unit">(€)</span>
-                                    </label>
+                                        Restwert <span id="restwert-unit">(€)</span></label>
                                     <input type="text" id="restwert" value="0"
                                            class="numeric-input w-full form-input-underline text-lg">
                                 </div>
@@ -171,7 +150,7 @@
                                 </label>
                             </div>
                         </div>
-                        <!-- Basiszins & Marge Gesamt -->
+                        <!-- Basiszins & Marge -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                             <div class="flex items-end">
                                 <div class="w-full">
@@ -200,7 +179,6 @@
                         </div>
                     </div>
 
-                    <!-- Berechnen & Ergebnisse -->
                     <div class="mt-auto">
                         <div class="mt-16">
                             <button id="calculate-btn"
@@ -225,7 +203,7 @@
                     </div>
                 </div>
 
-                <!-- Chart & Gesamtergebnis -->
+                <!-- Chart & Ergebnisse -->
                 <div class="p-6 sm:p-10 flex flex-col border-t lg:border-t-0 border-gray-200/50">
                     <div class="h-[7.5rem] flex items-start justify-center pt-1 text-center">
                         <div>
@@ -248,13 +226,14 @@
                     </div>
                     <div id="placeholder-container"
                          class="w-full flex-grow flex flex-col justify-center items-center text-center text-slate-500 -mt-16">
-                        <p>Ihre Ergebnisse werden hier angezeigt.</p></div>
+                        <p>Ihre Ergebnisse werden hier angezeigt.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Angebot erstellen (ausgeklappt zuerst) -->
+    <!-- Angebot erstellen (nun oberhalb des Finanzierungsverlaufs) -->
     <section class="w-full mt-8">
         <div class="panel rounded-2xl shadow-lg p-6">
             <button id="offer-toggle"
@@ -262,10 +241,10 @@
                 <h2 class="text-xl font-bold text-slate-800">Angebot erstellen</h2>
                 <span id="offer-icon" class="text-3xl text-slate-800">+</span>
             </button>
-            <div id="offer-container" class="toggle-section mt-4">
-                <form class="space-y-6">
+            <div id="offer-container" class="toggle-section mt-8">
+                <form class="space-y-8">
                     <!-- Finanzierungsart & Anrede -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                         <div>
                             <label for="finanzierungsart"
                                    class="block text-sm font-medium text-slate-600 mb-1">Finanzierungsart</label>
@@ -286,14 +265,14 @@
                         </div>
                     </div>
                     <!-- Vorname & Nachname -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                         <div>
                             <label for="vorname"
                                    class="block text-sm font-medium text-slate-600 mb-1">Vorname</label>
                             <input type="text" id="vorname" class="w-full form-input-underline text-lg">
                         </div>
                         <div>
-                            <label for="nachname"
+                            <label for "nachname"
                                    class="block text-sm font-medium text-slate-600 mb-1">Nachname</label>
                             <input type="text" id="nachname" class="w-full form-input-underline text-lg">
                         </div>
@@ -305,7 +284,7 @@
                         <input type="text" id="firma" class="w-full form-input-underline text-lg">
                     </div>
                     <!-- Adresse, PLZ, Ort -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
                         <div>
                             <label for="adresse"
                                    class="block text-sm font-medium text-slate-600 mb-1">Adresse &amp; Hausnummer</label>
@@ -324,7 +303,8 @@
                     </div>
                     <!-- Objekt & Hersteller -->
                     <div>
-                        <label for="objekt" class="block text-sm font-medium text-slate-600 mb-1">Objekt</label>
+                        <label for="objekt"
+                               class="block text-sm font-medium text-slate-600 mb-1">Objekt</label>
                         <input type="text" id="objekt" class="w-full form-input-underline text-lg">
                     </div>
                     <div>
@@ -332,29 +312,33 @@
                                class="block text-sm font-medium text-slate-600 mb-1">Hersteller</label>
                         <input type="text" id="hersteller" class="w-full form-input-underline text-lg">
                     </div>
-                    <!-- Neue Felder: E-Mail, Telefon, Objektart -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                    <!-- Neue Felder: E-Mail & Telefon -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                         <div>
-                            <label for="email" class="block text-sm font-medium text-slate-600 mb-1">E-Mail</label>
+                            <label for="email"
+                                   class="block text-sm font-medium text-slate-600 mb-1">E-Mail</label>
                             <input type="email" id="email" class="w-full form-input-underline text-lg">
                         </div>
                         <div>
-                            <label for="telefon" class="block text-sm font-medium text-slate-600 mb-1">Telefonnummer</label>
+                            <label for="telefon"
+                                   class="block text-sm font-medium text-slate-600 mb-1">Telefonnummer</label>
                             <input type="text" id="telefon" class="w-full form-input-underline text-lg">
                         </div>
                     </div>
+                    <!-- Objektart -->
                     <div>
-                        <label for="objektart" class="block text-sm font-medium text-slate-600 mb-1">Objektart</label>
+                        <label for="objektart"
+                               class="block text-sm font-medium text-slate-600 mb-1">Objektart</label>
                         <select id="objektart" class="w-full form-input-underline text-lg">
                             <option value="">Bitte wählen</option>
                             <option>Neu</option>
                             <option>Gebraucht</option>
                         </select>
                     </div>
-                    <!-- PDF-Button -->
-                    <div class="pt-4">
+                    <!-- Download Button -->
+                    <div class="mt-8">
                         <button type="button" id="download-pdf-btn"
-                                class="w-full bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
+                                class="w-full md:w-1/2 mx-auto bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
                             Angebot herunterladen
                         </button>
                     </div>
@@ -363,7 +347,7 @@
         </div>
     </section>
 
-    <!-- Finanzierungsverlauf (nun unter dem Angebots-Bereich) -->
+    <!-- Finanzierungsverlauf -->
     <section class="w-full mt-8">
         <div class="panel rounded-2xl shadow-lg p-6">
             <button id="timeline-toggle"
@@ -379,7 +363,7 @@
 </div>
 
 <script>
-    // --- DOM-Elemente ---
+    // DOM Elemente deklarieren
     const anzahlungToggle = document.getElementById('anzahlung-toggle');
     const restwertToggle = document.getElementById('restwert-toggle');
     const margeToggle = document.getElementById('marge-toggle');
@@ -409,11 +393,11 @@
     let costChart = null;
     let timelineChart = null;
 
-    // --- Tooltip Hover ---
+    // Tooltip Hover
     infoButton.addEventListener('mouseenter', () => infoTooltip.classList.remove('hidden'));
     infoButton.addEventListener('mouseleave', () => infoTooltip.classList.add('hidden'));
 
-    // --- Format- & Hilfsfunktionen ---
+    // Unformat & Format
     function unformat(str) {
         if (typeof str !== 'string' || !str) return 0;
         return parseFloat(str.replace(/\./g, '').replace(',', '.'));
@@ -444,7 +428,7 @@
         if (unformat(original) !== unformat(input.value)) performCalculation();
     }
 
-    // --- Finanzformeln ---
+    // Finanzformeln
     function PMT(rate, nper, pv, fv = 0) {
         if (rate === 0) return -(pv + fv) / nper;
         const pvif = Math.pow(1 + rate, nper);
@@ -469,7 +453,7 @@
         return ((low + high) / 2) * 12;
     }
 
-    // --- Hauptberechnung ---
+    // Hauptberechnung
     function performCalculation() {
         const av = unformat(document.getElementById('anschaffungswert').value);
         const lz = parseInt(document.getElementById('laufzeit').value) || 0;
@@ -490,12 +474,12 @@
 
         const principal = av - az + marge;
         const monRate = bz / 100 / 12;
-        const leasingRateInternal = PMT(monRate, lz, principal, -rw);
-        const leasingRate = -leasingRateInternal;
+        const leasingInternal = PMT(monRate, lz, principal, -rw);
+        const leasingRate = -leasingInternal;
         const finanzierungsbetrag = av - az;
 
         displayResult(leasingRate, az, rw, av, lz);
-        const indZins = RATE(lz, leasingRateInternal, finanzierungsbetrag, -rw);
+        const indZins = RATE(lz, leasingInternal, finanzierungsbetrag, -rw);
         indikativerZinsEl.value = formatLocale(indZins * 100, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
 
         if (timelineContainer.style.display === "block") {
@@ -521,14 +505,14 @@
     function updateCostChart(anzahlung, summeRaten, restwert) {
         if (costChart) costChart.destroy();
         const ctx = costChartCanvas.getContext('2d');
-        const dataVals = [anzahlung, summeRaten, restwert];
-        const total = dataVals.reduce((a, b) => a + b, 0);
+        const values = [anzahlung, summeRaten, restwert];
+        const total = values.reduce((a, b) => a + b, 0);
         costChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Anzahlung', 'Summe der Raten', 'Restwert'],
                 datasets: [{
-                    data: dataVals,
+                    data: values,
                     backgroundColor: ['#032659', '#004225', '#E35335'],
                     borderColor: '#F8F9FA',
                     borderWidth: 5,
@@ -553,13 +537,11 @@
                             const chart = legend.chart;
                             chart.toggleDataVisibility(idx);
                             chart.update();
-                            let visibleSum = 0;
+                            let sumVisible = 0;
                             chart.getDatasetMeta(0).data.forEach((arc, i) => {
-                                if (chart.getDataVisibility(i)) {
-                                    visibleSum += chart.data.datasets[0].data[i];
-                                }
+                                if (chart.getDataVisibility(i)) sumVisible += chart.data.datasets[0].data[i];
                             });
-                            gesamtkostenEl.value = formatLocale(visibleSum, { style: 'currency', currency: 'EUR' });
+                            gesamtkostenEl.value = formatLocale(sumVisible, { style: 'currency', currency: 'EUR' });
                         }
                     },
                     tooltip: {
@@ -573,9 +555,9 @@
         gesamtkostenEl.value = formatLocale(total, { style: 'currency', currency: 'EUR' });
     }
 
-    function generateTimelineChart(startKapital, rate, monate, jahreszins) {
+    function generateTimelineChart(startkapital, rate, monate, jahreszins) {
         if (timelineChart) timelineChart.destroy();
-        let restschuld = startKapital;
+        let restschuld = startkapital;
         const monZins = jahreszins / 12;
         const labels = [], zinsAnteile = [], tilgAnteile = [], restSchulden = [];
         for (let i = 1; i <= monate; i++) {
@@ -647,7 +629,7 @@
     }
     function hideError() { errorText.textContent = ''; }
 
-    // --- Prozent/Euro-Toggles ---
+    // Toggle für Euro/% einstellen
     function setupToggle(toggleEl, inputEl, unitEl) {
         toggleEl.addEventListener('change', () => {
             const av = unformat(document.getElementById('anschaffungswert').value);
@@ -666,12 +648,11 @@
     setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
     setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
 
-    // --- Event Listener ---
+    // Event Listener
     document.querySelectorAll('.numeric-input').forEach(input => input.addEventListener('input', formatInput));
     document.getElementById('laufzeit').addEventListener('input', performCalculation);
     calculateBtn.addEventListener('click', performCalculation);
 
-    // Timeline Toggle
     timelineToggleBtn.addEventListener('click', () => {
         if (timelineContainer.style.display === 'block') {
             timelineContainer.style.display = 'none';
@@ -683,7 +664,6 @@
         }
     });
 
-    // Angebot Toggle
     offerToggleBtn.addEventListener('click', () => {
         if (offerContainer.style.display === 'block') {
             offerContainer.style.display = 'none';
@@ -696,7 +676,6 @@
 
     // PDF-Erstellung
     pdfButton.addEventListener('click', async () => {
-        // Werte sammeln
         const values = {
             anschaffungswert: document.getElementById('anschaffungswert').value,
             laufzeit: document.getElementById('laufzeit').value,
@@ -722,17 +701,16 @@
             objektart: document.getElementById('objektart').value || ''
         };
 
-        // Chart als Bild
         const chartURL = costChartCanvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         pdf.setFontSize(18);
         pdf.text('Leasingangebot', 15, 20);
         pdf.setFontSize(12);
-        let yPos = 35;
+        let y = 35;
         const addLine = (label, val) => {
-            pdf.text(`${label}: ${val}`, 15, yPos);
-            yPos += 6;
+            pdf.text(`${label}: ${val}`, 15, y);
+            y += 6;
         };
         addLine('Anschaffungswert', values.anschaffungswert);
         addLine('Laufzeit', values.laufzeit + ' Monate');
@@ -744,12 +722,11 @@
         addLine('Leasingfaktor', values.leasingfaktor);
         addLine('Gesamtkosten', values.gesamtkosten);
 
-        // Kundendaten hinzufügen (falls vorhanden)
         if (values.finanzierungsart || values.vorname || values.email) {
-            yPos += 4;
+            y += 4;
             pdf.setFontSize(14);
-            pdf.text('Kundendaten', 15, yPos);
-            yPos += 6;
+            pdf.text('Kundendaten', 15, y);
+            y += 6;
             pdf.setFontSize(12);
             addLine('Finanzierungsart', values.finanzierungsart);
             addLine('Anrede', values.anrede);
@@ -764,16 +741,13 @@
             addLine('Objektart', values.objektart);
         }
 
-        // Diagramm einfügen
         const imgProps = pdf.getImageProperties(chartURL);
         const imgWidth = 100;
         const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
-        pdf.addImage(chartURL, 'PNG', 15, yPos + 10, imgWidth, imgHeight);
-
+        pdf.addImage(chartURL, 'PNG', 15, y + 10, imgWidth, imgHeight);
         pdf.save('Leasingangebot.pdf');
     });
 
-    // Berechnung beim Laden
     window.addEventListener('load', performCalculation);
 </script>
 
