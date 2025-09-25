@@ -6,6 +6,9 @@
     <title>Finanzierungskalkulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF-Bibliotheken -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,7 +51,7 @@
         .timeline-content {
             display: none;
         }
-        #toggle-icon { transition: transform 0.3s ease; }
+        #toggle-icon, #offer-icon { transition: transform 0.3s ease; }
         
         .toggle-switch {
             position: relative; display: inline-block;
@@ -103,7 +106,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                 <div>
                                     <label for="anschaffungswert" class="block text-sm font-medium text-slate-600 mb-1">Anschaffungswert (€)</label>
-                                    <input type="text" id="anschaffungswert" value="0" class="w-full form-input-underline text-lg">
+                                    <input type="text" id="anschaffungswert" value="0" class="numeric-input w-full form-input-underline text-lg">
                                 </div>
                                 <div>
                                     <label for="laufzeit" class="block text-sm font-medium text-slate-600 mb-1">Laufzeit (Monate)</label>
@@ -115,7 +118,7 @@
                                 <div class="flex items-end">
                                     <div class="w-full">
                                         <label for="anzahlung" class="block text-sm font-medium text-slate-600 mb-1">Anzahlung <span id="anzahlung-unit">(€)</span></label>
-                                        <input type="text" id="anzahlung" value="0" class="w-full form-input-underline text-lg">
+                                        <input type="text" id="anzahlung" value="0" class="numeric-input w-full form-input-underline text-lg">
                                     </div>
                                     <label class="toggle-switch ml-4 flex-shrink-0">
                                         <input type="checkbox" id="anzahlung-toggle">
@@ -125,7 +128,7 @@
                                 <div class="flex items-end">
                                     <div class="w-full">
                                         <label for="restwert" class="block text-sm font-medium text-slate-600 mb-1">Restwert <span id="restwert-unit">(€)</span></label>
-                                        <input type="text" id="restwert" value="0" class="w-full form-input-underline text-lg">
+                                        <input type="text" id="restwert" value="0" class="numeric-input w-full form-input-underline text-lg">
                                     </div>
                                      <label class="toggle-switch ml-4 flex-shrink-0">
                                         <input type="checkbox" id="restwert-toggle">
@@ -139,7 +142,7 @@
                                 <div class="flex items-end">
                                     <div class="w-full">
                                         <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">Basiszins (% p.a.)</label>
-                                        <input type="text" id="basiszins" value="0" class="w-full form-input-underline text-lg">
+                                        <input type="text" id="basiszins" value="0" class="numeric-input w-full form-input-underline text-lg">
                                     </div>
                                 </div>
                                 <!-- Marge Gesamt mit Toggle -->
@@ -149,7 +152,7 @@
                                             <span>Marge&nbsp;Gesamt</span>
                                             <span id="marge-unit" class="ml-1">(€)</span>
                                         </label>
-                                        <input type="text" id="margegesamt" value="0" class="w-full form-input-underline text-lg">
+                                        <input type="text" id="margegesamt" value="0" class="numeric-input w-full form-input-underline text-lg">
                                     </div>
                                     <label class="toggle-switch ml-4 flex-shrink-0">
                                         <input type="checkbox" id="marge-toggle">
@@ -202,14 +205,118 @@
             </div>
         </main>
         
+        <!-- Finanzierungsverlauf -->
         <section class="w-full mt-8">
             <div class="panel rounded-2xl shadow-lg p-6">
                 <button id="timeline-toggle" class="w-full flex justify-between items-center text-left">
                     <h2 class="text-xl font-bold text-slate-800">Finanzierungsverlauf anzeigen</h2>
-                    <!-- Plus-Zeichen statt Pfeil -->
                     <span id="toggle-icon" class="text-3xl font-bold text-slate-800 transition-transform duration-300">+</span>
                 </button>
                 <div id="timeline-container" class="timeline-content mt-4"><canvas id="timeline-chart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- Angebot erstellen -->
+        <section class="w-full mt-8">
+            <div class="panel rounded-2xl shadow-lg p-6">
+                <button id="offer-toggle" class="w-full flex justify-between items-center text-left">
+                    <h2 class="text-xl font-bold text-slate-800">Angebot erstellen</h2>
+                    <span id="offer-icon" class="text-3xl font-bold text-slate-800 transition-transform duration-300">+</span>
+                </button>
+                <div id="offer-container" class="timeline-content mt-4">
+                    <!-- Formularfeld -->
+                    <form class="space-y-6">
+                        <!-- Finanzierungsart und Anrede -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                            <div>
+                                <label for="finanzierungsart" class="block text-sm font-medium text-slate-600 mb-1">Finanzierungsart</label>
+                                <select id="finanzierungsart" class="w-full form-input-underline text-lg">
+                                    <option value="">Bitte wählen</option>
+                                    <option>Leasing</option>
+                                    <option>Mietkauf</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="anrede" class="block text-sm font-medium text-slate-600 mb-1">Anrede</label>
+                                <select id="anrede" class="w-full form-input-underline text-lg">
+                                    <option value="">Bitte wählen</option>
+                                    <option>Herr</option>
+                                    <option>Frau</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Vor- und Nachname -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                            <div>
+                                <label for="vorname" class="block text-sm font-medium text-slate-600 mb-1">Vorname</label>
+                                <input type="text" id="vorname" class="w-full form-input-underline text-lg">
+                            </div>
+                            <div>
+                                <label for="nachname" class="block text-sm font-medium text-slate-600 mb-1">Nachname</label>
+                                <input type="text" id="nachname" class="w-full form-input-underline text-lg">
+                            </div>
+                        </div>
+                        <!-- Firma -->
+                        <div>
+                            <label for="firma" class="block text-sm font-medium text-slate-600 mb-1">Firma</label>
+                            <input type="text" id="firma" class="w-full form-input-underline text-lg">
+                        </div>
+                        <!-- Bundesland -->
+                        <div>
+                            <label for="bundesland" class="block text-sm font-medium text-slate-600 mb-1">Bundesland</label>
+                            <select id="bundesland" class="w-full form-input-underline text-lg">
+                                <option value="">Bitte wählen</option>
+                                <option>Baden-Württemberg</option>
+                                <option>Bayern</option>
+                                <option>Berlin</option>
+                                <option>Brandenburg</option>
+                                <option>Bremen</option>
+                                <option>Hamburg</option>
+                                <option>Hessen</option>
+                                <option>Mecklenburg-Vorpommern</option>
+                                <option>Niedersachsen</option>
+                                <option>Nordrhein-Westfalen</option>
+                                <option>Rheinland-Pfalz</option>
+                                <option>Saarland</option>
+                                <option>Sachsen</option>
+                                <option>Sachsen-Anhalt</option>
+                                <option>Schleswig-Holstein</option>
+                                <option>Thüringen</option>
+                            </select>
+                        </div>
+                        <!-- Adresse, Postleitzahl, Ort -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6">
+                            <div>
+                                <label for="adresse" class="block text-sm font-medium text-slate-600 mb-1">Adresse &amp; Hausnummer</label>
+                                <input type="text" id="adresse" class="w-full form-input-underline text-lg">
+                            </div>
+                            <div>
+                                <label for="plz" class="block text-sm font-medium text-slate-600 mb-1">Postleitzahl</label>
+                                <input type="text" id="plz" class="w-full form-input-underline text-lg">
+                            </div>
+                            <div>
+                                <label for="ort" class="block text-sm font-medium text-slate-600 mb-1">Ort</label>
+                                <input type="text" id="ort" class="w-full form-input-underline text-lg">
+                            </div>
+                        </div>
+                        <!-- Objekt -->
+                        <div>
+                            <label for="objekt" class="block text-sm font-medium text-slate-600 mb-1">Objekt</label>
+                            <input type="text" id="objekt" class="w-full form-input-underline text-lg">
+                        </div>
+                        <!-- Hersteller -->
+                        <div>
+                            <label for="hersteller" class="block text-sm font-medium text-slate-600 mb-1">Hersteller</label>
+                            <input type="text" id="hersteller" class="w-full form-input-underline text-lg">
+                        </div>
+                        <!-- PDF-Button -->
+                        <div class="pt-4">
+                            <button type="button" id="download-pdf-btn" class="w-full bg-[#032659] text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
+                                Angebot als PDF herunterladen
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
     </div>
@@ -235,8 +342,12 @@
         const timelineToggle = document.getElementById('timeline-toggle');
         const timelineContainer = document.getElementById('timeline-container');
         const toggleIcon = document.getElementById('toggle-icon');
+        const offerToggle = document.getElementById('offer-toggle');
+        const offerContainer = document.getElementById('offer-container');
+        const offerIcon = document.getElementById('offer-icon');
         const infoButton = document.getElementById('info-button');
         const infoTooltip = document.getElementById('info-tooltip');
+        const pdfButton = document.getElementById('download-pdf-btn');
 
         let costChart = null;
         let timelineChart = null;
@@ -382,7 +493,8 @@
                     labels: ['Anzahlung', 'Summe der Raten', 'Restwert'],
                     datasets: [{
                         data: datasetValues,
-                       backgroundColor: ['#032659', '#004225', '#ed2100'],
+                        // Farben angepasst: Anzahlung #032659, Raten #004225, Restwert #E35335
+                        backgroundColor: ['#032659', '#004225', '#E35335'],
                         borderColor: '#F8F9FA', borderWidth: 5, hoverOffset: 10
                     }]
                 },
@@ -403,10 +515,8 @@
                             onClick: function (e, legendItem, legend) {
                                 const index = legendItem.index;
                                 const ci = legend.chart;
-                                // Standard-Toggle
                                 ci.toggleDataVisibility(index);
                                 ci.update();
-                                // Neu berechnen: nur sichtbare Segmente
                                 let sumVisible = 0;
                                 ci.getDatasetMeta(0).data.forEach((arc, i) => {
                                     if (ci.getDataVisibility(i)) {
@@ -424,7 +534,6 @@
                     }
                 }
             });
-            // Sicherstellen, dass Gesamtkosten dem vollen Wert entsprechen
             gesamtkostenEl.value = formatLocale(fullTotal, { style: 'currency', currency: 'EUR' });
         }
 
@@ -453,7 +562,7 @@
                     },{
                         label: 'Zinsanteil', data: zinsanteile, backgroundColor: '#B0C4DE', yAxisID: 'y'
                     }, {
-                        label: 'Tilgungsanteil', data: tilgungsanteile, backgroundColor: '#4169E1', yAxisID: 'y'
+                        label: 'Tilgungsanteil', data: tilgungsanteile, backgroundColor: '#032659', yAxisID: 'y'
                     }]
                 },
                 options: { 
@@ -514,8 +623,8 @@
         setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
         setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
         
-        // Event listeners
-        document.querySelectorAll('input[type="text"]').forEach(input => input.addEventListener('input', formatInput));
+        // Event listeners für numerische Felder
+        document.querySelectorAll('.numeric-input').forEach(input => input.addEventListener('input', formatInput));
         document.getElementById('laufzeit').addEventListener('input', performCalculation);
         
         calculateBtn.addEventListener('click', performCalculation);
@@ -530,6 +639,104 @@
                 icon.style.transform = 'rotate(45deg)';
                 performCalculation(); 
             }
+        });
+
+        offerToggle.addEventListener('click', () => {
+            const container = offerContainer;
+            const icon = offerIcon;
+            if (container.style.display === "block") {
+                container.style.display = "none";
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                container.style.display = "block";
+                icon.style.transform = 'rotate(45deg)';
+            }
+        });
+
+        // PDF-Erstellung
+        pdfButton.addEventListener('click', async () => {
+            // Werte sammeln
+            const values = {
+                anschaffungswert: document.getElementById('anschaffungswert').value,
+                laufzeit: document.getElementById('laufzeit').value,
+                anzahlung: document.getElementById('anzahlung').value + (anzahlungToggle.checked ? ' %' : ' €'),
+                restwert: document.getElementById('restwert').value + (restwertToggle.checked ? ' %' : ' €'),
+                marge: document.getElementById('margegesamt').value + (margeToggle.checked ? ' %' : ' €'),
+                basiszins: document.getElementById('basiszins').value,
+                indikativerZins: indikativerZinsEl.value,
+                leasingfaktor: leasingfaktorEl.value,
+                gesamtkosten: gesamtkostenEl.value,
+                finanzierungsart: document.getElementById('finanzierungsart').value || '',
+                anrede: document.getElementById('anrede').value || '',
+                vorname: document.getElementById('vorname').value || '',
+                nachname: document.getElementById('nachname').value || '',
+                firma: document.getElementById('firma').value || '',
+                bundesland: document.getElementById('bundesland').value || '',
+                adresse: document.getElementById('adresse').value || '',
+                plz: document.getElementById('plz').value || '',
+                ort: document.getElementById('ort').value || '',
+                objekt: document.getElementById('objekt').value || '',
+                hersteller: document.getElementById('hersteller').value || ''
+            };
+
+            // Chart in Bild umwandeln
+            const canvas = costChartCanvas;
+            const chartDataUrl = canvas.toDataURL('image/png');
+
+            // jsPDF Instanz
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Header
+            pdf.setFontSize(18);
+            pdf.text('Leasingangebot', 15, 20);
+
+            // Parametereinträge
+            pdf.setFontSize(12);
+            let y = 35;
+            const addLine = (label, value) => {
+                pdf.text(`${label}: ${value}`, 15, y);
+                y += 6;
+            };
+            addLine('Anschaffungswert', values.anschaffungswert);
+            addLine('Laufzeit', values.laufzeit + ' Monate');
+            addLine('Anzahlung', values.anzahlung);
+            addLine('Restwert', values.restwert);
+            addLine('Marge Gesamt', values.marge);
+            addLine('Basiszins', values.basiszins + ' % p.a.');
+            addLine('Indikativer Zins', values.indikativerZins);
+            addLine('Leasingfaktor', values.leasingfaktor);
+            addLine('Gesamtkosten', values.gesamtkosten);
+
+            // Kundendaten, falls vorhanden
+            if (values.finanzierungsart || values.vorname) {
+                y += 4;
+                pdf.setFontSize(14);
+                pdf.text('Kundendaten', 15, y);
+                y += 6;
+                pdf.setFontSize(12);
+                addLine('Finanzierungsart', values.finanzierungsart);
+                addLine('Anrede', values.anrede);
+                addLine('Vorname', values.vorname);
+                addLine('Nachname', values.nachname);
+                addLine('Firma', values.firma);
+                addLine('Bundesland', values.bundesland);
+                addLine('Adresse', `${values.adresse} ${values.plz} ${values.ort}`);
+                addLine('Objekt', values.objekt);
+                addLine('Hersteller', values.hersteller);
+            }
+
+            // Diagramm einfügen
+            const imgProps = pdf.getImageProperties(chartDataUrl);
+            const imgWidth = 100;
+            const imgHeight = (imgProps.height / imgProps.width) * imgWidth;
+            pdf.addImage(chartDataUrl, 'PNG', 15, y + 10, imgWidth, imgHeight);
+
+            pdf.save('Leasingangebot.pdf');
         });
 
         window.addEventListener('load', performCalculation);
