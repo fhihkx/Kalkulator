@@ -1,1675 +1,1401 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finanzierungskalkulator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #F8F9FA;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-    .form-input-underline {
-      background-color: transparent;
-      border: none;
-      border-bottom: 1px solid #ced4da;
-      border-radius: 0;
-      padding: 0.5rem 0.2rem;
-      color: #212529;
-      transition: border-color 0.3s, border-width 0.3s;
-      -webkit-appearance: none;
-          appearance: none;
-    }
-    .form-input-underline:focus {
-      border-color: #032659;
-      border-width: 0 0 1px 0;
-      box-shadow: none;
-      outline: none;
-    }
-    .form-input-underline.has-error {
-        border-color: #ef4444; /* red-500 */
-    }
-    .error-icon {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%);
-        color: #ef4444;
-        width: 1.25rem; /* w-5 */
-        height: 1.25rem; /* h-5 */
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzierungskalkulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #F8F9FA;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+   .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+   .form-input-underline {
+      background-color: transparent;
+      border: none;
+      border-bottom: 1px solid #ced4da;
+      border-radius: 0;
+      padding: 0.5rem 0.2rem;
+      color: #212529;
+      transition: border-color 0.3s, border-width 0.3s;
+      -webkit-appearance: none;
+              appearance: none;
+    }
+   .form-input-underline:focus {
+      border-color: #032659;
+      border-width: 0 0 1px 0;
+      box-shadow: none;
+      outline: none;
+    }
+   .form-input-underline.has-error {
+        border-color: #ef4444; /* red-500 */
+    }
+   .error-icon {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        color: #ef4444;
+        width: 1.25rem; /* w-5 */
+        height: 1.25rem; /* h-5 */
+    }
 
-    .result-field {
-      background-color: transparent;
-      border: none;
-      padding: 0.5rem 0.2rem;
-      color: #212529;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    .panel {
-      background-color: #ffffff;
-      border: 1px solid #f0f0f0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      border-radius: 0.75rem;
-    }
-    .toggle-section {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.45s ease, margin-top 0.45s ease;
-    }
-    .toggle-section.open-offer { margin-top: 2rem; }
-    .toggle-section.open-timeline { margin-top: 0.75rem; }
-    #offer-icon, #timeline-icon {
-      font-weight: 500;
-      transition: transform 0.5s ease-in-out;
-    }
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 51px;
-      height: 31px;
-    }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 27px;
-      width: 27px;
-      left: 2px;
-      bottom: 2px;
-      background-color: #ffffff;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider { background-color: #032659; }
-    input:checked + .slider:before { transform: translateX(20px); }
+   .result-field {
+      background-color: transparent;
+      border: none;
+      padding: 0.5rem 0.2rem;
+      color: #212529;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+   .panel {
+      background-color: #ffffff;
+      border: 1px solid #f0f0f0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      border-radius: 0.75rem;
+    }
+   .toggle-section {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s ease, margin-top 0.45s ease;
+    }
+   .toggle-section.open-offer { margin-top: 2rem; }
+    #offer-icon {
+      font-weight: 500;
+      transition: transform 0.5s ease-in-out;
+    }
+   .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 51px;
+      height: 31px;
+    }
+   .toggle-switch input { opacity: 0; width: 0; height: 0; }
+   .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+   .slider:before {
+      position: absolute;
+      content: "";
+      height: 27px;
+      width: 27px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #ffffff;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked +.slider { background-color: #032659; }
+    input:checked +.slider:before { transform: translateX(20px); }
 
-    select.is-placeholder {
-        color: #9ca3af; /* text-gray-400 */
-        font-size: 0.95rem;
-    }
+    select.is-placeholder {
+        color: #9ca3af; /* text-gray-400 */
+        font-size: 0.95rem;
+    }
 
-    /* History Modal */
-    #history-modal {
-        transition: opacity 0.3s ease-in-out;
-    }
-    #history-panel {
-        transition: transform 0.3s ease-in-out;
-    }
-     /* Style Search Input */
-    #history-search {
-        border: 1px solid #d1d5db; /* gray-300 */
-        border-radius: 0.375rem; /* rounded-md */
-        padding: 0.5rem 0.75rem;
-        width: 100%;
-        margin-top: 0.5rem; /* Add some space below title */
-        margin-bottom: 1rem;
-        font-size: 0.875rem; /* text-sm */
-    }
-     #history-search:focus {
-        outline: 2px solid transparent;
-        outline-offset: 2px;
-        border-color: #032659;
-        box-shadow: 0 0 0 2px rgba(3, 38, 89, 0.3);
-     }
-    /* Style for the info and reset buttons to ensure consistent padding */
-    .header-button-wrapper {
-        display: inline-flex; /* Use flex to align content within span/button */
-        justify-content: center;
-        align-items: center;
-        background-color: #e2e8f0; /* bg-gray-200 */
-        border-radius: 9999px; /* rounded-full */
-        font-size: 0.875rem; /* text-sm */
-        font-weight: 700; /* font-bold */
-        cursor: pointer;
-        user-select: none;
-        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-        transition-duration: 150ms;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 0.25rem 0.625rem; /* Equivalent to px-2.5 py-0.5 */
-        height: 28px; /* Fixed height for consistent sizing */
-        min-width: 28px; /* Fixed width for consistent sizing */
-    }
-    .header-button-wrapper:hover {
-        background-color: #cbd5e1; /* hover:bg-gray-300 */
-    }
-  </style>
+    #history-modal {
+        transition: opacity 0.3s ease-in-out;
+    }
+    #history-panel {
+        transition: transform 0.3s ease-in-out;
+    }
+    #history-search {
+        border: 1px solid #d1d5db; /* gray-300 */
+        border-radius: 0.375rem; /* rounded-md */
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem; /* text-sm */
+    }
+     #history-search:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        border-color: #032659;
+        box-shadow: 0 0 0 2px rgba(3, 38, 89, 0.3);
+     }
+   .header-button-wrapper {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e2e8f0; /* bg-gray-200 */
+        border-radius: 9999px; /* rounded-full */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 700; /* font-bold */
+        cursor: pointer;
+        user-select: none;
+        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+        transition-duration: 150ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0.25rem 0.625rem;
+        height: 28px;
+        min-width: 28px;
+    }
+   .header-button-wrapper:hover {
+        background-color: #cbd5e1; /* hover:bg-gray-300 */
+    }
+  </style>
 </head>
 <body class="text-slate-800 min-h-screen p-4 py-16">
 <div class="w-full max-w-5xl mx-auto">
-  <header class="text-left mt-6 mb-6 flex justify-between items-start">
-    <div>
-        <h1 class="text-4xl sm:text-5xl font-bold uppercase" style="color: #032659; letter-spacing: 0.06em;">
-        FINANZIERUNGSKALKULATOR
-        </h1>
-        <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">
-        Gib deine Werte ein und erhalte die Rate, Kosten und den Zins.
-        </p>
-        <div class="flex items-center mt-4">
-          <div class="relative inline-block">
-              <span id="info-button" class="text-slate-600 header-button-wrapper">i</span>
-              <div id="info-tooltip" class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 bg-white border border-gray-300 rounded-lg p-3 text-xs text-slate-700 shadow-xl z-20 hidden">
-              <b>1) Werte eingeben:</b> Anschaffungswert, Laufzeit sowie Anzahlung, Restwert und Marge (in € oder % über den Schalter).<br><br>
-              <b>2) „Berechnen“ klicken:</b> Rate, Gesamtkosten und Zins erscheinen; der Ring zeigt die Kostenanteile.<br><br>
-              <b>3) „Finanzierungsverlauf“ öffnen</b> für Zins- und Tilgungsverlauf je Monat.<br><br>
-              <b>4) Angebot erstellen:</b> Kontaktdaten ausfüllen (Leasing/Mietkauf) und PDF herunterladen.
-              </div>
-          </div>
-          <button id="reset-button" title="Eingaben zurücksetzen" class="ml-2 text-[#032659] header-button-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-              </svg>
-          </button>
-        </div>
-    </div>
-    <div class="pt-1">
-        <button id="history-button" title="Berechnungsverlauf anzeigen" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </button>
-    </div>
-  </header>
-  <main class="w-full">
-    <div class="panel rounded-2xl relative">
-      <div class="grid grid-cols-1 lg:grid-cols-2">
-        <div class="p-6 sm:p-10 flex flex-col h-full">
-          <div class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-              <div>
-                <label for="anschaffungswert" class="block text-sm font-medium text-slate-600 mb-1">
-                  Anschaffungswert (€)
-                </label>
-                <input type="text" id="anschaffungswert" value="0" class="numeric-input w-full form-input-underline text-lg" />
-              </div>
-              <div>
-                <label for="laufzeit" class="block text-sm font-medium text-slate-600 mb-1">
-                  Laufzeit (Monate)
-                </label>
-                <input type="number" id="laufzeit" value="0" class="w-full form-input-underline text-lg" />
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-              <div class="flex items-end">
-                <div class="w-full">
-                  <label for="anzahlung" class="block text-sm font-medium text-slate-600 mb-1">
-                    Anzahlung <span id="anzahlung-unit">(€)</span>
-                  </label>
-                  <input type="text" id="anzahlung" value="0" class="numeric-input w-full form-input-underline text-lg" />
-                </div>
-                <label class="toggle-switch ml-4 flex-shrink-0">
-                  <input type="checkbox" id="anzahlung-toggle" />
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex items-end">
-                <div class="w-full">
-                  <label for="restwert" class="block text-sm font-medium text-slate-600 mb-1">
-                    Restwert <span id="restwert-unit">(€)</span>
-                  </label>
-                  <input type="text" id="restwert" value="0" class="numeric-input w-full form-input-underline text-lg" />
-                </div>
-                <label class="toggle-switch ml-4 flex-shrink-0">
-                  <input type="checkbox" id="restwert-toggle" />
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-              <div class="flex items-end">
-                <div class="w-full">
-                  <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">
-                    Basiszins (% p.a.)
-                  </label>
-                  <input type="text" id="basiszins" value="0" class="numeric-input w-full form-input-underline text-lg" />
-                </div>
-              </div>
-              <div class="flex items-end">
-                <div class="w-full">
-                  <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">
-                    Marge Gesamt <span id="marge-unit">(€)</span>
-                  </label>
-                  <input type="text" id="margegesamt" value="0" class="numeric-input w-full form-input-underline text-lg" />
-                </div>
-                <label class="toggle-switch ml-4 flex-shrink-0">
-                  <input type="checkbox" id="marge-toggle" />
-                  <span class="slider"></span>
-                </label>
-            	</div>
-          	</div>
-          </div>
-
-                    <div class="flex-1 flex items-center justify-center py-8">
-            <button id="calculate-btn" class="w-full bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
-              Berechnen
-            </button>
-          </div>
-
-                    <div class="pt-8 border-t border-[#ced4da]">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-              <div>
-                  <label for="indikativer-zins" class="block text-sm font-medium text-slate-600">
-                    Indikativer Zins (% p.a.)
-                  </label>
-                  <input type="text" id="indikativer-zins" class="w-full result-field" readonly />
-                </div>
-                <div>
-                  <label for="leasingfaktor" class="block text-sm font-medium text-slate-600">
-                    Leasingfaktor (%)
-                  </label>
-                  <input type="text" id="leasingfaktor" class="w-full result-field" readonly />
-              </div>
-            </div>
-          </div>
-                  </div>
-        <div class="p-6 sm:p-10 flex flex-col border-t lg:border-t-0 border-gray-200/50">
-          <div class="h-[7.5rem] flex items-start justify-center pt-1 text-center">
-            <div>
-              <label class="block text-sm font-medium text-slate-600">Monatliche Leasingrate</label>
-              <p id="result-text" class="text-4xl font-bold text-slate-900 mt-2 h-12"></p>
-            </div>
-          </div>
-          <div id="result-container" class="w-full hidden flex-grow flex flex-col justify-center items-center text-center -mt-16">
-            <div id="error-text" class="text-red-500 mt-2 font-medium h-6"></div>
-            <div class="w-full max-w-sm mx-auto">
-              <canvas id="cost-chart"></canvas>
-            </div>
-            <div class="mt-12 pt-8 border-t border-[#ced4da] w-full max-w-xs">
-              <div class="text-center">
-                <label for="gesamtkosten" class="block text-sm font-medium text-slate-600">Gesamtkosten (€)</label>
-                <input type="text" id="gesamtkosten" class="w-full result-field text-center" readonly />
-              </div>
-            </div>
-          </div>
-          <div id="placeholder-container" class="w-full flex-grow flex flex-col justify-center items-center text-center text-slate-500 -mt-16">
-            <p>Ihre Ergebnisse werden hier angezeigt.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <section class="w-full mt-8">
-    <div class="panel rounded-2xl p-6 sm:p-10">
-      <button id="offer-toggle" class="w-full flex justify-between items-center text-left">
-        <h2 class="text-xl font-bold text-slate-800">Angebot erstellen</h2>
-        <span id="offer-icon" class="text-3xl text-slate-800">+</span>
-      </button>
-      <div id="offer-container" class="toggle-section">
-        <form class="space-y-8" novalidate>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-            <div>
-              <label for="finanzierungsart" class="block text-sm font-medium text-slate-600 mb-1">Finanzierungsart</label>
-              <div class="relative">
-                <select id="finanzierungsart" class="w-full form-input-underline text-lg is-placeholder" required>
-                  <option value="">Bitte wählen</option>
-                  <option>Leasing</option>
-                  <option>Mietkauf</option>
-                </select>
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-            <div>
-              <label for="anrede" class="block text-sm font-medium text-slate-600 mb-1">Anrede</label>
-              <div class="relative">
-                <select id="anrede" class="w-full form-input-underline text-lg is-placeholder" required>
-                  <option value="">Bitte wählen</option>
-                  <option>Herr</option>
-                  <option>Frau</option>
-                </select>
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-            <div>
-              <label for="vorname" class="block text-sm font-medium text-slate-600 mb-1">Vorname</label>
-              <div class="relative">
-                <input type="text" id="vorname" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-            <div>
-              <label for="nachname" class="block text-sm font-medium text-slate-600 mb-1">Nachname</label>
-              <div class="relative">
-                <input type="text" id="nachname" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-          </div>
-          <div>
-            <label for="firma" class="block text-sm font-medium text-slate-600 mb-1">Firma</label>
-            <div class="relative">
-                <input type="text" id="firma" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
-            <div>
-              <label for="adresse" class="block text-sm font-medium text-slate-600 mb-1">Adresse &amp; Hausnummer</label>
-              <div class="relative">
-                <input type="text" id="adresse" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-            <div>
-              <label for="plz" class="block text-sm font-medium text-slate-600 mb-1">Postleitzahl</label>
-              <div class="relative">
-                <input type="text" id="plz" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              </div>
-            </div>
-            <div>
-              <label for="ort" class="block text-sm font-medium text-slate-600 mb-1">Ort</label>
-            	<div class="relative">
-                <input type="text" id="ort" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-            	</div>
-          	</div>
-          </div>
-          <div>
-            <label for="objekt" class="block text-sm font-medium text-slate-600 mb-1">Objekt</label>
-            <div class="relative">
-                <input type="text" id="objekt" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-            </div>
-          </div>
-          <div>
-            <label for="hersteller" class="block text-sm font-medium text-slate-600 mb-1">Hersteller</label>
-            <div class="relative">
-                <input type="text" id="hersteller" class="w-full form-input-underline text-lg" required />
-                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-            </div>
-          </div>
-          
-          <div class="mt-8 text-center min-h-[7rem] flex flex-col justify-end pb-2">
-            <p id="offer-error-message" class="text-red-600 text-sm mb-4 hidden"></p>
-            <button type="button" id="download-pdf-btn" class="w-full md:w-1/2 mx-auto bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
-              Angebot herunterladen
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-  <section class="w-full mt-8">
-    <div class="panel rounded-2xl p-6 sm:p-10">
-      <button id="timeline-toggle" class="w-full flex justify-between items-center text-left">
-        <h2 class="text-xl font-bold text-slate-800">Finanzierungsverlauf</h2>
-        <span id="timeline-icon" class="text-3xl text-slate-800 select-none">+</span>
-      </button>
-      <div id="timeline-container" class="toggle-section">
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-slate-600">
-          <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
-            <span class="inline-block h-3 w-3 rounded-full" style="background:#032659;"></span>
-            <span><b>Restschuld</b> (Linie)</span>
-          </div>
-          <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
-            <span class="inline-block h-3 w-3 rounded" style="background:rgba(176,196,222,0.6);"></span>
-            <span><b>Zinsanteil</b> (Fläche)</span>
-          </div>
-          <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
-            <span class="inline-block h-3 w-3 rounded" style="background:rgba(3,38,89,0.12);"></span>
-            <span><b>Tilgungsanteil</b> (Fläche)</span>
-          </div>
-        </div>
-        <div class="mt-4">
-          <canvas id="timeline-chart" height="180"></canvas>
-        </div>
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-slate-700">
-          <div class="bg-white rounded-lg border border-slate-200 px-3 py-2">
-            <div class="text-slate-500">Monatliche Rate</div>
-            <div id="tl-rate" class="font-semibold">–</div>
-          </div>
-          <div class="bg-white rounded-lg border border-slate-200 px-3 py-2">
-            <div class="text-slate-500">Zins gesamt</div>
-            <div id="tl-zins-gesamt" class="font-semibold">–</div>
-          </div>
-          <div class="bg-white rounded-lg border border-slate-200 px-3 py-2">
-            <div class="text-slate-500">Tilgung gesamt</div>
-            <div id="tl-tilgung-gesamt" class="font-semibold">–</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <header class="text-left mt-6 mb-6 flex justify-between items-start">
+    <div>
+        <h1 class="text-4xl sm:text-5xl font-bold uppercase" style="color: #032659; letter-spacing: 0.06em;">
+        FINANZIERUNGSKALKULATOR
+        </h1>
+        <p class="mt-4 text-slate-500 text-lg" style="letter-spacing: 0.072em;">
+        Gib deine Werte ein und erhalte die Rate, Kosten und den Zins.
+        </p>
+        <div class="flex items-center mt-4">
+          <div class="relative inline-block">
+              <span id="info-button" class="text-slate-600 header-button-wrapper">i</span>
+              <div id="info-tooltip" class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 bg-white border border-gray-300 rounded-lg p-3 text-xs text-slate-700 shadow-xl z-20 hidden">
+              <b>1) Werte eingeben:</b> Anschaffungswert, Laufzeit sowie Anzahlung, Restwert und Marge (in € oder % über den Schalter).<br><br>
+              <b>2) „Berechnen“ klicken:</b> Rate, Gesamtkosten und Zins erscheinen; der Ring zeigt die Kostenanteile.<br><br>
+              <b>3) Angebot erstellen:</b> Kontaktdaten ausfüllen (Leasing/Mietkauf) und PDF herunterladen.
+              </div>
+          </div>
+          <button id="reset-button" title="Eingaben zurücksetzen" class="ml-2 text-[#032659] header-button-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+              </svg>
+          </button>
+        </div>
+    </div>
+    <div class="pt-1">
+        <button id="history-button" title="Berechnungsverlauf anzeigen" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+    </div>
+  </header>
+  <main class="w-full">
+    <div class="panel rounded-2xl relative">
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <div class="p-6 sm:p-10 flex flex-col h-full">
+          <div class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              <div>
+                <label for="anschaffungswert" class="block text-sm font-medium text-slate-600 mb-1">
+                  Anschaffungswert (€)
+                </label>
+                <input type="text" id="anschaffungswert" value="0" class="numeric-input w-full form-input-underline text-lg" />
+              </div>
+              <div>
+                <label for="laufzeit" class="block text-sm font-medium text-slate-600 mb-1">
+                  Laufzeit (Monate)
+                </label>
+                <input type="number" id="laufzeit" value="0" class="w-full form-input-underline text-lg" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              <div class="flex items-end">
+                <div class="w-full">
+                  <label for="anzahlung" class="block text-sm font-medium text-slate-600 mb-1">
+                    Anzahlung <span id="anzahlung-unit">(€)</span>
+                  </label>
+                  <input type="text" id="anzahlung" value="0" class="numeric-input w-full form-input-underline text-lg" />
+                </div>
+                <label class="toggle-switch ml-4 flex-shrink-0">
+                  <input type="checkbox" id="anzahlung-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex items-end">
+                <div class="w-full">
+                  <label for="restwert" class="block text-sm font-medium text-slate-600 mb-1">
+                    Restwert <span id="restwert-unit">(€)</span>
+                  </label>
+                  <input type="text" id="restwert" value="0" class="numeric-input w-full form-input-underline text-lg" />
+                </div>
+                <label class="toggle-switch ml-4 flex-shrink-0">
+                  <input type="checkbox" id="restwert-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              <div class="flex items-end">
+                <div class="w-full">
+                  <label for="basiszins" class="block text-sm font-medium text-slate-600 mb-1">
+                    Basiszins (% p.a.)
+                  </label>
+                  <input type="text" id="basiszins" value="0" class="numeric-input w-full form-input-underline text-lg" />
+                </div>
+              </div>
+              <div class="flex items-end">
+                <div class="w-full">
+                  <label for="margegesamt" class="block text-sm font-medium text-slate-600 mb-1">
+                    Marge Gesamt <span id="marge-unit">(€)</span>
+                  </label>
+                  <input type="text" id="margegesamt" value="0" class="numeric-input w-full form-input-underline text-lg" />
+                </div>
+                <label class="toggle-switch ml-4 flex-shrink-0">
+                  <input type="checkbox" id="marge-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="mt-16">
+            <button id="calculate-btn" class="w-full bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
+              Berechnen
+            </button>
+          </div>
+          <div class="mt-12 pt-8 border-t border-[#ced4da]">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6">
+              <div>
+                  <label for="indikativer-zins" class="block text-sm font-medium text-slate-600">
+                    Indikativer Zins (% p.a.)
+                  </label>
+                  <input type="text" id="indikativer-zins" class="w-full result-field" readonly />
+              </div>
+              <div>
+                  <label for="leasingfaktor" class="block text-sm font-medium text-slate-600">
+                    Leasingfaktor (%)
+                  </label>
+                  <input type="text" id="leasingfaktor" class="w-full result-field" readonly />
+              </div>
+              <div>
+                  <label for="gesamtkosten" class="block text-sm font-medium text-slate-600">Gesamtkosten (€)</label>
+                  <input type="text" id="gesamtkosten" class="w-full result-field" readonly />
+              </div>
+            </div>
+          </div>
+          <div class="mt-auto"></div>
+        </div>
+        <div class="p-6 sm:p-10 flex flex-col border-t lg:border-t-0 border-gray-200/50">
+          <div class="h-[7.5rem] flex items-start justify-center pt-1 text-center">
+            <div>
+              <label class="block text-sm font-medium text-slate-600">Monatliche Leasingrate</label>
+              <p id="result-text" class="text-4xl font-bold text-slate-900 mt-2 h-12"></p>
+            </div>
+          </div>
+          <div id="result-container" class="w-full hidden flex-grow flex flex-col justify-center items-center text-center -mt-16">
+            <div id="error-text" class="text-red-500 mt-2 font-medium h-6"></div>
+            <div class="w-full max-w-sm mx-auto">
+              <canvas id="cost-chart"></canvas>
+            </div>
+          </div>
+          <div id="placeholder-container" class="w-full flex-grow flex flex-col justify-center items-center text-center text-slate-500 -mt-16">
+            <p>Ihre Ergebnisse werden hier angezeigt.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <section class="w-full mt-8">
+    <div class="panel rounded-2xl p-6 sm:p-10">
+      <button id="offer-toggle" class="w-full flex justify-between items-center text-left">
+        <h2 class="text-xl font-bold text-slate-800">Angebot erstellen</h2>
+        <span id="offer-icon" class="text-3xl text-slate-800">+</span>
+      </button>
+      <div id="offer-container" class="toggle-section">
+        <form class="space-y-8" novalidate>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+            <div>
+              <label for="finanzierungsart" class="block text-sm font-medium text-slate-600 mb-1">Finanzierungsart</label>
+              <div class="relative">
+                <select id="finanzierungsart" class="w-full form-input-underline text-lg is-placeholder" required>
+                  <option value="">Bitte wählen</option>
+                  <option>Leasing</option>
+                  <option>Mietkauf</option>
+                </select>
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+            <div>
+              <label for="anrede" class="block text-sm font-medium text-slate-600 mb-1">Anrede</label>
+              <div class="relative">
+                <select id="anrede" class="w-full form-input-underline text-lg is-placeholder" required>
+                  <option value="">Bitte wählen</option>
+                  <option>Herr</option>
+                  <option>Frau</option>
+                </select>
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+            <div>
+              <label for="vorname" class="block text-sm font-medium text-slate-600 mb-1">Vorname</label>
+              <div class="relative">
+                <input type="text" id="vorname" class="w-full form-input-underline text-lg" required />
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+            <div>
+              <label for="nachname" class="block text-sm font-medium text-slate-600 mb-1">Nachname</label>
+              <div class="relative">
+                <input type="text" id="nachname" class="w-full form-input-underline text-lg" required />
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label for="firma" class="block text-sm font-medium text-slate-600 mb-1">Firma</label>
+            <div class="relative">
+              <input type="text" id="firma" class="w-full form-input-underline text-lg" required />
+              <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
+            <div>
+              <label for="adresse" class="block text-sm font-medium text-slate-600 mb-1">Adresse &amp; Hausnummer</label>
+              <div class="relative">
+                <input type="text" id="adresse" class="w-full form-input-underline text-lg" required />
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+            <div>
+              <label for="plz" class="block text-sm font-medium text-slate-600 mb-1">Postleitzahl</label>
+              <div class="relative">
+                <input type="text" id="plz" class="w-full form-input-underline text-lg" required />
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+            <div>
+              <label for="ort" class="block text-sm font-medium text-slate-600 mb-1">Ort</label>
+              <div class="relative">
+                <input type="text" id="ort" class="w-full form-input-underline text-lg" required />
+                <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label for="objekt" class="block text-sm font-medium text-slate-600 mb-1">Objekt</label>
+            <div class="relative">
+              <input type="text" id="objekt" class="w-full form-input-underline text-lg" required />
+              <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+            </div>
+          </div>
+          <div>
+            <label for="hersteller" class="block text-sm font-medium text-slate-600 mb-1">Hersteller</label>
+            <div class="relative">
+              <input type="text" id="hersteller" class="w-full form-input-underline text-lg" required />
+              <svg class="error-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+            </div>
+          </div>
+          <div class="mt-8 text-center min-h-[7rem] flex flex-col justify-end pb-2">
+            <p id="offer-error-message" class="text-red-600 text-sm mb-4 hidden"></p>
+            <button type="button" id="download-pdf-btn" class="w-full md:w-1/2 mx-auto bg-[#032659] text-white font-bold py-4 px-4 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-4 focus:ring-[#032659]/50 transition-all duration-300 ease-in-out">
+              Angebot herunterladen
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
 </div>
 
 <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-    <div id="history-panel" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col transform -translate-y-10">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h2 class="text-xl font-bold text-slate-800">Verlauf der Berechnungen</h2>
-            <button id="close-history-button" class="p-2 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-         <div class="p-4 border-b">
-             <input type="search" id="history-search" placeholder="Suche nach Name, Firma, Objekt, Wert..." class="form-input-underline w-full !border !border-gray-300 rounded-md text-sm" />
-        </div>
-        <div id="history-list" class="overflow-y-auto p-4 space-y-3 flex-grow">
-            </div>
-    </div>
+    <div id="history-panel" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col transform -translate-y-10">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-xl font-bold text-slate-800">Verlauf der Berechnungen</h2>
+            <button id="close-history-button" class="p-2 rounded-full hover:bg-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-4 border-b">
+             <input type="search" id="history-search" placeholder="Suche nach Name, Firma, Objekt, Wert..." class="form-input-underline w-full!border!border-gray-300 rounded-md text-sm" />
+        </div>
+        <div id="history-list" class="overflow-y-auto p-4 space-y-3 flex-grow">
+        </div>
+    </div>
 </div>
 
 
 <script>
-  // Hilfsfunktionen (unformat, formatLocale, formatInput - unchanged)
- const unformat = (str) => {
-    if (typeof str !== 'string' || !str) return 0;
-    // Handle potential spaces within the number string after formatting
-    return parseFloat(str.replace(/\./g, '').replace(',', '.').replace(/\s/g, '')) || 0;
- };
- function formatLocale(value, options = {}) {
-    if (value === null || value === undefined || value === '') return '';
-    // Ensure value is a number before formatting
-    const numValue = Number(value);
-    if (isNaN(numValue)) return ''; // Return empty if not a valid number
-    // Default to currency style if not specified
-    const defaultOptions = { style: 'currency', currency: 'EUR', ...options };
-    return numValue.toLocaleString('de-DE', defaultOptions);
- }
- function formatInput(event) {
-    const el = event.target;
-    // Don't format if the input is empty or just a comma/period
-    if (!el.value || el.value === ',' || el.value === '.') return;
-    // Check if it's a numeric input or Laufzeit
-    if (el.classList.contains('numeric-input') || el.id === 'basiszins') {
-         const numericValue = unformat(el.value);
-         // Check if numericValue is a valid number before formatting
-         if (!isNaN(numericValue)) {
-           el.value = formatLocale(numericValue, { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }); // Use decimal style for input
-         } else {
-            el.value = ''; // Clear if invalid
-         }
-    } else if (el.id === 'laufzeit') {
-        // Laufzeit should likely be an integer
-         const intValue = parseInt(el.value.replace(/\D/g, '')); // Remove non-digits
-         el.value = isNaN(intValue) ? '' : intValue.toString();
-    }
- }
-
-  // Finanzierungsformeln (PMT, RATE - unchanged)
- function PMT(rate, nper, pv, fv = 0) {
-    if (rate === 0) return -(pv + fv) / nper;
-    const pvFactor = Math.pow(1 + rate, nper);
-    return -(rate * (fv + pv * pvFactor)) / (pvFactor - 1);
-  }
- function RATE(nper, pmt, pv, fv = 0) {
-    const precision = 1e-7;
-    const maxIter = 100;
-    let low = -0.99, high = 5; // Start high range higher
-    // Ensure inputs are numbers and reasonable
-    nper = Number(nper); pmt = Number(pmt); pv = Number(pv); fv = Number(fv);
-    if (isNaN(nper) || isNaN(pmt) || isNaN(pv) || isNaN(fv) || nper <= 0) {
-        console.error("Invalid input for RATE function");
-        return NaN; // Indicate error
-    }
-
-    // Check edge case for zero rate possibility
-    if (Math.abs(pv + pmt * nper + fv) < precision) {
-        return 0;
-    }
-
-    const f = (rate) => {
-      if (rate === 0) return pv + pmt * nper + fv; // Handle zero rate case separately
-       // Add check for rate being close to -1 which causes issues with pow
-       if (rate <= -1) return Infinity; // Or some large number indicating invalid rate
-       try {
-          const factor = Math.pow(1 + rate, nper);
-          return pv * factor + pmt * ((factor - 1) / rate) + fv;
-       } catch (e) {
-          console.error("Error in RATE calculation function:", e);
-          return Infinity; // Indicate error
-       }
-    };
-
-     // Initial check of bounds
-     let fLow = f(low);
-     let fHigh = f(high);
-
-     if (isNaN(fLow) || isNaN(fHigh)) {
-        console.error("Initial bounds yield NaN for RATE function", {fLow, fHigh});
-        return NaN; // Cannot proceed
-     }
-
-
-     // Adjust bounds if necessary if the function doesn't cross zero within initial range
-     if (fLow * fHigh >= 0) {
-          console.warn("RATE function might not have a root in the initial range [-0.99, 5]. Result might be inaccurate.");
-         // Basic attempt to extend range if both positive or both negative, could be improved
-         if (fLow > 0 && fHigh > 0) {
-            low = -0.9999; // Try closer to -1
-            fLow = f(low);
-         } else if (fLow < 0 && fHigh < 0) {
-            high = 10; // Try much higher rate
-            fHigh = f(high);
-         }
-          if (isNaN(fLow) || isNaN(fHigh) || fLow * fHigh >= 0) {
-             console.error("Could not find suitable bounds for RATE function.");
-             // Return NaN or best guess depending on desired behavior
-             return NaN;
-          }
-
-     }
-
-
-    for (let i = 0; i < maxIter; i++) {
-       // Check if bounds are valid numbers
-      if (isNaN(low) || isNaN(high) || low >= high) {
-           console.error("Invalid bounds in RATE iteration", { low, high, i });
-           return NaN; // Error state
-      }
-
-      const mid = (low + high) / 2;
-
-       // Prevent infinite loop if mid calculation gets stuck
-       if (mid === low || mid === high) {
-            console.warn("RATE stuck in loop, returning current estimate.");
-            break;
-       }
-
-      const fMid = f(mid);
-
-      if (isNaN(fMid)) {
-           console.error("f(mid) resulted in NaN in RATE iteration", { mid, i });
-           // Adjust bounds away from the problematic mid, this is heuristic
-           if (fLow < 0) high = mid; else low = mid; // Assume it failed on one side
-           continue; // Try next iteration
-       }
-
-
-      if (Math.abs(fMid) < precision) {
-        return mid * 12; // Annual rate
-      }
-
-      // Update bounds based on sign change
-      fLow = f(low); // Re-evaluate f(low) in case it changed due to bound adjustment
-       if (isNaN(fLow)){
-            console.error("f(low) resulted in NaN during RATE update", {low, i});
-           // If f(low) fails, the lower bound might be the issue
-           low = mid; // Try moving lower bound up
-           continue;
-       }
-
-      if (fLow * fMid < 0) {
-        high = mid;
-      } else {
-        low = mid;
-      }
-    }
-     console.warn("RATE did not converge within max iterations. Returning best estimate.");
-    return ((low + high) / 2) * 12; // Return best estimate
- }
-  // Globale Variablen und DOM-Elemente
-  let costChart = null;
-  let timelineChart = null;
-  const anzahlungToggle = document.getElementById('anzahlung-toggle');
-  const restwertToggle = document.getElementById('restwert-toggle');
-  const margeToggle = document.getElementById('marge-toggle');
-  const anzahlungUnit = document.getElementById('anzahlung-unit');
-  const restwertUnit = document.getElementById('restwert-unit');
-  const margeUnit = document.getElementById('marge-unit');
-  const indikativerZinsEl = document.getElementById('indikativer-zins');
-  const leasingfaktorEl = document.getElementById('leasingfaktor');
-  const gesamtkostenEl = document.getElementById('gesamtkosten');
-  const resultContainer = document.getElementById('result-container');
-  const placeholderContainer = document.getElementById('placeholder-container');
-  const resultText = document.getElementById('result-text');
-  const errorText = document.getElementById('error-text');
-  const costChartCanvas = document.getElementById('cost-chart');
-  const timelineContainer = document.getElementById('timeline-container');
-  const timelineChartCanvas = document.getElementById('timeline-chart');
-  const tlRateEl = document.getElementById('tl-rate');
-  const tlZinsSumEl = document.getElementById('tl-zins-gesamt');
-  const tlTilgSumEl = document.getElementById('tl-tilgung-gesamt');
-  const offerToggleBtn = document.getElementById('offer-toggle');
-  const offerContainer = document.getElementById('offer-container');
-  const offerIcon = document.getElementById('offer-icon');
-  const timelineToggleBtn = document.getElementById('timeline-toggle');
-  const timelineIcon = document.getElementById('timeline-icon');
-  const pdfButton = document.getElementById('download-pdf-btn');
-  const calculateBtn = document.getElementById('calculate-btn');
-  const infoButton = document.getElementById('info-button');
-  const infoTooltip = document.getElementById('info-tooltip');
-  const resetButton = document.getElementById('reset-button'); // NEU
-
-  // History Functionality
-  const historyButton = document.getElementById('history-button');
-  const historyModal = document.getElementById('history-modal');
-  const historyPanel = document.getElementById('history-panel');
-  const closeHistoryButton = document.getElementById('close-history-button');
-  const historyList = document.getElementById('history-list');
-  const historySearchInput = document.getElementById('history-search');
-
-
-  // Hauptberechnung (calls save function with offerData)
- function performCalculation(isRestoring = false) {
-    // Hide results initially if calculation wasn't triggered and not restoring
-    if (!calculateBtn.dataset.clicked && !isRestoring) {
-         showPlaceholder();
-         return; // Don't proceed if calculate wasn't clicked
-    }
-
-
-    const av = unformat(document.getElementById('anschaffungswert').value);
-    const lz = parseInt(document.getElementById('laufzeit').value) || 0;
-    const bz = unformat(document.getElementById('basiszins').value);
-    const azInput = unformat(document.getElementById('anzahlung').value);
-    const rwInput = unformat(document.getElementById('restwert').value);
-    const margeInput = unformat(document.getElementById('margegesamt').value);
-    const az = anzahlungToggle.checked ? (azInput / 100) * av : azInput;
-    const rw = restwertToggle.checked ? (rwInput / 100) * av : rwInput;
-    const marge = margeToggle.checked ? (margeInput / 100) * av : margeInput;
-
-    if (av <= 0 || lz <= 0) {
-      // Show error only if triggered by button click or restoring invalid data
-      showError("Anschaffungswert und Laufzeit müssen größer als 0 sein.");
-      clearResultsOnError(); // Clear results when showing error
-      return;
-    }
-
-    hideError(); // Clear previous errors if inputs are valid
-    const finanzierungsbetrag = av - az;
-     // Ensure principal (PV for PMT) is reasonable
-    const principal = av - az + marge;
-    if (principal < 0 && rw <= 0) {
-         // Handle cases where financing amount is negative and no positive future value exists
-         console.warn("Calculation might be invalid: Negative principal with non-positive residual value.");
-         // Optionally show a specific error or default results
-    }
-
-    const monRate = bz / 100 / 12;
-
-     // Add checks before calling PMT
-     if (isNaN(monRate) || isNaN(lz) || isNaN(principal) || isNaN(rw)) {
-          showError("Ungültige Eingabe für Zinsberechnung.");
-          clearResultsOnError();
-          return;
-     }
-
-    const leasingInternal = PMT(monRate, lz, principal, -rw);
-     // Check if PMT result is valid
-     if (isNaN(leasingInternal) || !isFinite(leasingInternal)) {
-          showError("Berechnung der Rate fehlgeschlagen. Prüfen Sie die Eingaben.");
-          clearResultsOnError();
-          return;
-     }
-
-    const leasingRate = -leasingInternal;
-
-    // Only save if it's a new calculation (not restoring) triggered by the button
-    if (!isRestoring && calculateBtn.dataset.clicked === "true" && av > 0 && lz > 0) {
-         // Get offer data when saving calculation
-        const offerData = {
-           finanzierungsart: document.getElementById('finanzierungsart').value || '',
-           anrede: document.getElementById('anrede').value || '',
-           vorname: document.getElementById('vorname').value || '',
-           nachname: document.getElementById('nachname').value || '',
-           firma: document.getElementById('firma').value || '',
-           adresse: document.getElementById('adresse').value || '',
-           plz: document.getElementById('plz').value || '',
-           ort: document.getElementById('ort').value || '',
-           objekt: document.getElementById('objekt').value || '',
-           hersteller: document.getElementById('hersteller').value || '',
-           // GELÖSCHT: email, telefon, objektart
-        };
-        saveCalculationToHistory(leasingRate, offerData);
-    }
-
-    displayResult(leasingRate, az, rw, av, lz);
-
-    // Calculate Indikativer Zins (RATE function)
-    const indZins = RATE(lz, leasingInternal, finanzierungsbetrag, -rw);
-    if (!isNaN(indZins)) {
-         indikativerZinsEl.value = formatLocale(indZins * 100, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %'; // Use decimal style for display consistency
-    } else {
-         indikativerZinsEl.value = 'N/A'; // Show N/A if RATE calculation failed
-         console.error("RATE calculation failed.");
-    }
-
-
-    if (timelineContainer.classList.contains('open-timeline')) {
-      generateTimelineChart(finanzierungsbetrag, leasingRate, lz, indZins);
-      // Ensure max-height is recalculated if timeline was already open
-      timelineContainer.style.maxHeight = timelineContainer.scrollHeight + 'px';
-    }
-    // Reset clicked flag after calculation
-    calculateBtn.dataset.clicked = "false";
- }
-
-  // NEU: Funktion zum Zurücksetzen aller Eingaben
-  function resetAllInputs() {
-      // 1. Reset Calculator Inputs
-      document.getElementById('anschaffungswert').value = '0';
-      document.getElementById('laufzeit').value = '0';
-      document.getElementById('basiszins').value = '0';
-      document.getElementById('anzahlung').value = '0';
-      document.getElementById('restwert').value = '0';
-      document.getElementById('margegesamt').value = '0';
-
-      // 2. Reset Toggles
-      if (anzahlungToggle.checked) anzahlungToggle.checked = false;
-      if (restwertToggle.checked) restwertToggle.checked = false;
-      if (margeToggle.checked) margeToggle.checked = false;
-      anzahlungUnit.textContent = '(€)';
-      restwertUnit.textContent = '(€)';
-      margeUnit.textContent = '(€)';
-
-      // 3. Format Inputs
-      document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => formatInput({ target: input }));
-
-      // 4. Reset Offer Form Inputs
-      document.getElementById('finanzierungsart').value = '';
-      document.getElementById('anrede').value = '';
-      document.getElementById('vorname').value = '';
-      document.getElementById('nachname').value = '';
-      document.getElementById('firma').value = '';
-      document.getElementById('adresse').value = '';
-      document.getElementById('plz').value = '';
-      document.getElementById('ort').value = '';
-      document.getElementById('objekt').value = '';
-      document.getElementById('hersteller').value = '';
-      // Removed fields (email, telefon, objektart) are already gone
-
-      // 5. Reset Select Placeholders
-      document.querySelectorAll('select.is-placeholder').forEach(select => {
-          select.classList.add('is-placeholder');
-          // Also clear validation state
-          const parent = select.closest('.relative');
-          const icon = parent?.querySelector('.error-icon');
-          select.classList.remove('has-error');
-          if (icon) icon.classList.add('hidden');
-      });
-
-      // 6. Clear Offer Form Errors
-      const offerErrorMessage = document.getElementById('offer-error-message');
-      offerErrorMessage.classList.add('hidden');
-      offerErrorMessage.textContent = '';
-      offerContainer.querySelectorAll('input[required]').forEach(field => {
-          const parent = field.closest('.relative');
-          const icon = parent?.querySelector('.error-icon');
-          field.classList.remove('has-error');
-          if (icon) icon.classList.add('hidden');
-      });
-
-
-      // 7. Reset Results
-      showPlaceholder(); // This handles chart, result fields, and error text
-
-      // 8. Reset Timeline Chart
-      if (timelineChart) {
-          timelineChart.destroy();
-          timelineChart = null;
-      }
-      tlRateEl.textContent = '–';
-      tlZinsSumEl.textContent = '–';
-      tlTilgSumEl.textContent = '–';
-
-      // 9. Reset calculate button clicked state
-      calculateBtn.dataset.clicked = "false";
-  }
-
-
-  function clearResultsOnError() {
-     if (costChart) { costChart.destroy(); costChart = null; }
-     resultText.textContent = '';
-     indikativerZinsEl.value = '';
-     leasingfaktorEl.value = '';
-     gesamtkostenEl.value = '';
-     resultContainer.classList.add('hidden');
-     placeholderContainer.classList.remove('hidden');
-  }
-
-  function showPlaceholder() {
-       if (costChart) { costChart.destroy(); costChart = null; }
-       resultText.textContent = '';
-       indikativerZinsEl.value = '';
-       leasingfaktorEl.value = '';
-       gesamtkostenEl.value = '';
-       resultContainer.classList.add('hidden');
-       placeholderContainer.classList.remove('hidden');
-       hideError(); // Also hide any potential error messages
-   }
-
-
-  function displayResult(rate, anzahlung, restwert, av, monate) {
-    resultContainer.classList.remove('hidden');
-    resultContainer.classList.add('fade-in');
-    placeholderContainer.classList.add('hidden');
-    resultText.textContent = formatLocale(rate, { style: 'currency', currency: 'EUR' });
-    const kosten = anzahlung + rate * (monate || 0) + restwert;
-    gesamtkostenEl.value = formatLocale(kosten, { style: 'currency', currency: 'EUR' });
-    const faktor = av > 0 ? (rate / av) * 100 : 0;
-    leasingfaktorEl.value = formatLocale(faktor, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %'; // Use decimal style
-    updateCostChart(anzahlung, rate * (monate || 0), restwert);
-  }
-  // updateCostChart, generateTimelineChart, showError, hideError, setupToggle (unchanged)
- function updateCostChart(anzahlung, summeRaten, restwert) {
-    if (costChart) costChart.destroy();
-    const ctx = costChartCanvas.getContext('2d');
-    const values = [anzahlung, summeRaten, restwert].map(v => Math.max(0, v)); // Ensure non-negative values for chart
-    const total = values.reduce((a, b) => a + b, 0);
-    costChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Anzahlung', 'Summe der Raten', 'Restwert'],
-        datasets: [{
-          data: values,
-          backgroundColor: ['#032659', '#004225', '#E35335'],
-          borderColor: '#F8F9FA',
-          borderWidth: 5,
-          hoverOffset: 10
-        }]
-      },
-      options: {
-        responsive: true,
-        cutout: '75%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            align: 'start',
-            labels: {
-              color: '#6C757D',
-              padding: 20,
-              boxWidth: 12,
-              font: {
-                size: 14,
-                family: "'Montserrat', sans-serif"
-              }
-            },
-            onClick: (e, legendItem, legend) => {
-              const idx = legendItem.index;
-              const chart = legend.chart;
-              const alreadyHidden = !chart.getDataVisibility(idx);
-
-              // Toggle visibility
-              chart.toggleDataVisibility(idx);
-              chart.update();
-
-              // Recalculate sum of visible segments
-              let visibleSum = 0;
-              chart.getDatasetMeta(0).data.forEach((arc, i) => {
-                if (chart.getDataVisibility(i)) {
-                  visibleSum += chart.data.datasets[0].data[i];
-                }
-              });
-               gesamtkostenEl.value = formatLocale(visibleSum, { style: 'currency', currency: 'EUR' });
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                  // Ensure label exists and value is a number
-                  if (ctx.label && typeof ctx.parsed === 'number') {
-                     return `${ctx.label}: ${formatLocale(ctx.parsed, { style: 'currency', currency: 'EUR' })}`;
-                  }
-                  return ''; // Return empty string if data is invalid
-              }
-            }
-          }
-        }
-      }
-    });
-    // Ensure Gesamtkosten reflects initial visible sum
-    gesamtkostenEl.value = formatLocale(total, { style: 'currency', currency: 'EUR' });
- }
- function generateTimelineChart(startkapital, rate, monate, jahreszins) {
-    if (timelineChart) timelineChart.destroy();
-
-     // Validate inputs for timeline chart
-    if (isNaN(startkapital) || isNaN(rate) || isNaN(monate) || isNaN(jahreszins) || monate <= 0) {
-        console.error("Invalid inputs for generateTimelineChart.");
-        // Optionally clear the timeline display elements
-        if (tlRateEl) tlRateEl.textContent = '–';
-        if (tlZinsSumEl) tlZinsSumEl.textContent = '–';
-        if (tlTilgSumEl) tlTilgSumEl.textContent = '–';
-        return;
-    }
-
-
-    let restschuld = startkapital;
-    const monZins = jahreszins / 12; // Annual rate to monthly
-    const labels = [];
-    const zinsAnteile = [];
-    const tilgAnteile = [];
-    const restSchulden = [];
-    let totalZins = 0;
-    let totalTilgung = 0;
-
-    // Check for invalid rate which might cause infinite loop or weird results
-    if (isNaN(rate) || rate <= 0 || isNaN(monZins)) {
-        console.error("Invalid rate or interest for timeline chart calculation.");
-        // Clear previous chart and data if invalid
-         if(tlRateEl) tlRateEl.textContent = '–';
-         if(tlZinsSumEl) tlZinsSumEl.textContent = '–';
-         if(tlTilgSumEl) tlTilgSumEl.textContent = '–';
-        return;
-    }
-
-
-    for (let i = 1; i <= monate; i++) {
-      labels.push(`M ${i}`);
-      // Ensure Zins calculation doesn't go below zero if restschuld is already 0
-      const zins = Math.max(0, restschuld * monZins);
-      // Ensure Tilgung doesn't make restschuld negative unnecessarily large
-      // Tilgung is the portion of the rate that reduces principal
-      let tilg = rate - zins;
-
-      // Adjust tilg if it exceeds remaining restschuld (e.g., last payment)
-      if (tilg > restschuld) {
-           tilg = restschuld;
-           // If tilg needed adjustment, the actual payment might be lower (rate - zins vs restschuld + zins)
-           // However, for chart simplicity, we often show the calculated rate components
-      }
-      // Ensure tilg is not negative if zins > rate (can happen with very low startkapital or high initial interest)
-      tilg = Math.max(0, tilg);
-
-
-      restschuld = restschuld - tilg;
-      // Clamp restschuld at 0
-      restschuld = Math.max(0, restschuld);
-
-      zinsAnteile.push(zins);
-      tilgAnteile.push(tilg);
-      restSchulden.push(restschuld);
-      totalZins += zins;
-      totalTilgung += tilg;
-
-       // Safety break if restschuld somehow becomes negative significantly (shouldn't happen with clamping)
-       if (restschuld < -0.01) {
-           console.warn("Restschuld became significantly negative during timeline calculation, stopping early.");
-           break;
-       }
-        // Break early if restschuld hits 0 precisely
-       if (restschuld === 0 && i < monate) {
-            console.log("Restschuld reached 0 early at month", i);
-           // Fill remaining months with 0s if needed, or just stop
-           // For simplicity, we can stop here. The chart will just end.
-           // break; // Uncomment if you want the chart to stop early
-       }
-
-    }
-    // Update summary fields
-    tlRateEl.textContent = formatLocale(rate, { style: 'currency', currency: 'EUR' });
-    tlZinsSumEl.textContent = formatLocale(totalZins, { style: 'currency', currency: 'EUR' });
-    tlTilgSumEl.textContent = formatLocale(totalTilgung, { style: 'currency', currency: 'EUR' });
-
-    const ctx = timelineChartCanvas.getContext('2d');
-    timelineChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            type: 'line',
-            label: 'Restschuld',
-            data: restSchulden,
-            borderColor: '#032659',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.1,
-            yAxisID: 'y1'
-          },
-          {
-            label: 'Zinsanteil',
-            data: zinsAnteile,
-            backgroundColor: 'rgba(176,196,222,0.6)',
-            stack: 'combined',
-            yAxisID: 'y'
-          },
-          {
-            label: 'Tilgungsanteil',
-            data: tilgAnteile,
-            backgroundColor: 'rgba(3,38,89,0.12)',
-            stack: 'combined',
-            yAxisID: 'y'
-          }
-        ]
-      },
-      options: {
-        plugins: { legend: { display: false } }, // Hide default legend
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: { stacked: true, grid: { display: false } },
-          y: {
-            position: 'left',
-            stacked: true,
-            beginAtZero: true,
-            title: { display: true, text: 'Ratenzusammensetzung (€)' }
-          },
-          y1: {
-            type: 'linear',
-            position: 'right',
-            beginAtZero: true,
-            display: true,
-            title: { display: true, text: 'Restschuld (€)' },
-            grid: { drawOnChartArea: false } // Only show axis line
-          }
-        },
-        interaction: { mode: 'index', intersect: false },
-         tooltip: { // Corrected from tooltips
-           mode: 'index',
-           intersect: false,
-           callbacks: {
-               label: function(context) {
-                   let label = context.dataset.label || '';
-                   if (label) {
-                       label += ': ';
-                   }
-                   // Ensure context.parsed and context.parsed.y exist and are numbers
-                   if (context.parsed && typeof context.parsed.y === 'number') {
-                       label += formatLocale(context.parsed.y, { style: 'currency', currency: 'EUR' });
-                   } else {
-                        label += 'N/A'; // Indicate if value is missing
-                   }
-                   return label;
-               }
-           }
-      }
-      }
-    });
- }
- function showError(msg) {
-    // Only show the error message, clearing results is handled separately or within performCalculation
-    errorText.textContent = msg;
- }
- function hideError() {
-    errorText.textContent = '';
- }
- function setupToggle(toggleEl, inputEl, unitEl) {
-    toggleEl.addEventListener('change', () => {
-      const av = unformat(document.getElementById('anschaffungswert').value);
-      const currentVal = unformat(inputEl.value);
-       // Just update the unit and value formatting, don't trigger full calculation
-      if (toggleEl.checked) {
-        unitEl.textContent = '(%)';
-        if (av > 0) {
-          inputEl.value = formatLocale((currentVal / av) * 100, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        } else {
-           inputEl.value = formatLocale(currentVal, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }); // Format as percentage even if AV is 0
-        }
-      } else {
-        unitEl.textContent = '(€)';
-        if (av > 0) {
-          inputEl.value = formatLocale((currentVal / 100) * av, { style:'decimal', maximumFractionDigits: 0 });
-        } else {
-           inputEl.value = formatLocale(currentVal, { style:'decimal', maximumFractionDigits: 0 }); // Format as currency even if AV is 0
-        }
-      }
-      // Re-apply formatting after potential conversion
-      formatInput({ target: inputEl });
-    });
- }
-
-
-  // --- Initial Setup & Event Listeners --- (unchanged toggle setup, blur listeners)
-  setupToggle(anzahlungToggle, document.getElementById('anzahlung'), anzahlungUnit);
-  setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
-  setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
-
-  document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => {
-    input.addEventListener('blur', formatInput);
-     formatInput({ target: input });
-  });
-
-  calculateBtn.addEventListener('click', () => {
-       calculateBtn.dataset.clicked = "true"; // Mark button as clicked
-       performCalculation();
-  });
-
-  // NEU: Reset Button Listener
-  resetButton.addEventListener('click', resetAllInputs);
-
-  // Info Tooltip (unchanged)
-  infoButton.addEventListener('mouseenter', () => infoTooltip.classList.remove('hidden'));
-  infoButton.addEventListener('mouseleave', () => infoTooltip.classList.add('hidden'));
-
-  // Accordion Toggles (unchanged)
-  offerToggleBtn.addEventListener('click', () => {
-    const isOpen = offerContainer.classList.toggle('open-offer');
-    offerIcon.style.transform = isOpen ? 'rotate(45deg)' : 'rotate(0deg)';
-    offerContainer.style.maxHeight = isOpen ? offerContainer.scrollHeight + 'px' : null;
-  });
-  timelineToggleBtn.addEventListener('click', () => {
-    const isOpen = timelineContainer.classList.toggle('open-timeline');
-    timelineIcon.style.transform = isOpen ? 'rotate(45deg)' : 'rotate(0deg)';
-    if (isOpen) {
-       const av = unformat(document.getElementById('anschaffungswert').value);
-       const lz = parseInt(document.getElementById('laufzeit').value) || 0;
-       const resultsVisible = !resultContainer.classList.contains('hidden');
-
-       if (resultsVisible && av > 0 && lz > 0 && !errorText.textContent) {
-          performCalculation(true);
-       } else {
-           timelineContainer.style.maxHeight = timelineContainer.scrollHeight + 'px';
-           if(timelineChart) timelineChart.destroy(); timelineChart = null;
-           if(tlRateEl) tlRateEl.textContent = '–';
-           if(tlZinsSumEl) tlZinsSumEl.textContent = '–';
-           if(tlTilgSumEl) tlTilgSumEl.textContent = '–';
-       }
-
-    } else {
-      timelineContainer.style.maxHeight = null;
-    }
-  });
-
-   // PDF Download Logic (unchanged validation, uses updated PDF generation)
-   pdfButton.addEventListener('click', () => {
-    const offerErrorMessage = document.getElementById('offer-error-message');
-    const requiredFields = Array.from(offerContainer.querySelectorAll('[required]'));
-    let isFormValid = true;
-
-    // Reset previous errors
-    requiredFields.forEach(field => {
-         const parent = field.closest('.relative');
-         const icon = parent?.querySelector('.error-icon');
-         field.classList.remove('has-error');
-         if (icon) icon.classList.add('hidden');
-    });
-
-    // Validate fields
-    requiredFields.forEach(field => {
-      if (!field.value.trim()) {
-        isFormValid = false;
-        const parent = field.closest('.relative');
-        const icon = parent?.querySelector('.error-icon');
-        field.classList.add('has-error');
-        if (icon) icon.classList.remove('hidden');
-      }
-    });
-
-    // Check if calculation results are available
-    if (!resultText.textContent || resultContainer.classList.contains('hidden')) {
-         offerErrorMessage.textContent = 'Bitte führen Sie zuerst eine gültige Berechnung durch.';
-         offerErrorMessage.classList.remove('hidden');
-         isFormValid = false;
-         if (calculateBtn) calculateBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    if (!isFormValid) {
-         if (!offerErrorMessage.textContent) {
-              offerErrorMessage.textContent = 'Bitte füllen Sie alle markierten Felder aus, um das Angebot herunterzuladen.';
-              offerErrorMessage.classList.remove('hidden');
-         }
-         const firstError = offerContainer.querySelector('.has-error');
-         if (firstError) {
-             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-             firstError.focus({ preventScroll: true });
-         }
-         return;
-    }
-
-    offerErrorMessage.classList.add('hidden');
-
-    // --- PDF Generation ---
-    const values = {
-      // Calculator values
-      anschaffungswertRaw: unformat(document.getElementById('anschaffungswert').value),
-      laufzeit: document.getElementById('laufzeit').value,
-      anzahlungRaw: unformat(document.getElementById('anzahlung').value),
-      anzahlungToggle: anzahlungToggle.checked,
-      restwertRaw: unformat(document.getElementById('restwert').value),
-      restwertToggle: restwertToggle.checked,
-      monatlicheRate: resultText.textContent, // Get calculated rate directly
-      // Offer form fields
-      finanzierungsart: document.getElementById('finanzierungsart').value,
-      anrede: document.getElementById('anrede').value,
-      nachname: document.getElementById('nachname').value,
-      firma: document.getElementById('firma').value,
-      adresse: document.getElementById('adresse').value,
-      plz: document.getElementById('plz').value,
-      ort: document.getElementById('ort').value,
-      objekt: document.getElementById('objekt').value,
-      hersteller: document.getElementById('hersteller').value,
-    };
-
-    // --- Calculate absolute Euro values ---
-    const avNum = values.anschaffungswertRaw;
-    const anzahlungEuro = values.anzahlungToggle ? (values.anzahlungRaw / 100) * avNum : values.anzahlungRaw;
-    const restwertEuro = values.restwertToggle ? (values.restwertRaw / 100) * avNum : values.restwertRaw;
-    const entgeltEuro = restwertEuro; // Entgelt is based on the absolute Restwert in Euro
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    pdf.setFont('helvetica', 'normal'); // Use a standard font like helvetica
-    pdf.setTextColor(0); // Set default text color to black
-    pdf.setFontSize(10); // Set default font size smaller for better fit
-
-    let y = 25; // Start position adjusted
-    const leftMargin = 20; // Margin from left (ca. 2cm)
-    const valueXPos = 70;    // X position for the start of the value text
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const contentWidth = pageWidth - leftMargin * 2; // Width available between margins
-    const lineSpacing = 6; // Adjusted line spacing
-    const sectionSpacing = 10; // Adjusted section spacing
-
-    // Address Block (Top Left)
-    const addressStartY = y;
-    if (values.firma) { pdf.text(values.firma, leftMargin, y); y += 5; }
-    if (values.anrede || values.nachname) { pdf.text(`${values.anrede || ''} ${values.nachname || ''}`.trim(), leftMargin, y); y += 5; }
-    if (values.adresse) { pdf.text(values.adresse, leftMargin, y); y += 5; }
-    if (values.plz || values.ort) { pdf.text(`${values.plz || ''} ${values.ort || ''}`.trim(), leftMargin, y); y += 5; }
-
-    y = Math.max(y, addressStartY) + sectionSpacing * 1.5; // Ensure space after address block
-
-    // Subject Line (Bold)
-    pdf.setFontSize(11); // Slightly larger for subject
-    pdf.setFont('helvetica', 'bold');
-    if(values.objekt || values.hersteller) {
-         pdf.text(`Finanzierungsangebot: ${values.objekt || ''} ${values.hersteller || ''}`.trim(), leftMargin, y);
-    } else {
-          pdf.text(`Finanzierungsangebot`, leftMargin, y);
-    }
-    y += lineSpacing * 2; // More space after subject
-
-    // Greeting
-    pdf.setFont('helvetica', 'normal'); // Reset font weight
-    pdf.setFontSize(11);
-    pdf.text(`Sehr ${values.anrede === 'Frau' ? 'geehrte Frau' : 'geehrter Herr'} ${values.nachname || ''},`, leftMargin, y);
-    y += lineSpacing * 1.5;
-
-    // Intro Text
-    const requestType = values.finanzierungsart === 'Mietkauf' ? 'Mietkaufanfrage' : 'Leasinganfrage';
-    pdf.text(`wir danken für Ihre ${requestType} und bieten wie folgt unverbindlich an:`, leftMargin, y);
-    y += sectionSpacing * 1.5; // More space before details
-
-    // Financial Details Function (Label left bold, Value right normal) - Updated Spacing
-    const addDetailLinePDF = (label, value) => {
-         if (value || value === 0 || String(value).replace(/[€\s]/g, '').trim() !== '') { // Improved check for empty/zero values
-              pdf.setFontSize(10); // Consistent size
-              pdf.setFont('helvetica', 'bold');
-              pdf.text(`${label}:`, leftMargin, y);
-              pdf.setFont('helvetica', 'normal');
-              pdf.text(String(value), valueXPos, y); // Align value at fixed position
-              y += lineSpacing; // Use defined line spacing
-         }
-    };
-
-    addDetailLinePDF('Anschaffungspreis', formatLocale(avNum, { style: 'currency', currency: 'EUR'}));
-    addDetailLinePDF('Laufzeit', values.laufzeit ? `${values.laufzeit} Monate` : 'N/A');
-    addDetailLinePDF('Mietsonderzahlung', formatLocale(anzahlungEuro, { style: 'currency', currency: 'EUR'}));
-    addDetailLinePDF('Monatliche Rate', values.monatlicheRate); // Already formatted €
-    addDetailLinePDF('Restwert', formatLocale(restwertEuro, { style: 'currency', currency: 'EUR'}));
-
-    y += lineSpacing * 0.5; // Small gap before notes
-
-    // NEU: Definition von addWrappedTextPDF HIERHER VERSCHOBEN
-    // Function to add wrapped text with specified left margin and width
-    const addWrappedTextPDF = (text, startY, margin, width, lineSpacingScale = 1.0, isBold = false) => {
-          const currentSize = pdf.getFontSize(); // Store current size
-          const currentStyle = pdf.getFont().fontStyle; // Store current style
-
-          if (isBold) pdf.setFont('helvetica', 'bold');
-          else pdf.setFont('helvetica', 'normal');
-
-          const lines = pdf.splitTextToSize(text, width);
-          pdf.text(lines, margin, startY);
-
-          // Reset font style and size after printing
-          pdf.setFont('helvetica', currentStyle);
-          pdf.setFontSize(currentSize);
-
-          return startY + (lines.length * (lineSpacing * 0.8) * lineSpacingScale); // Calculate next y using slightly smaller spacing for wrapped text
-    };
-
-    // Conditional Mietkauf Note (Bold and Black)
-    if (values.finanzierungsart === 'Mietkauf') {
-         pdf.setFontSize(9);
-         pdf.setFont('helvetica', 'bold'); // Set font to bold
-         pdf.setTextColor(0); // Ensure black text
-         y = addWrappedTextPDF('Hinweis: Die gesetzl. Mehrwertsteuer fällt vorab auf die Summe aller Zahlungen an.', y, leftMargin, contentWidth, 1.0, true); // Use wrapper, mark as bold
-         pdf.setFont('helvetica', 'normal'); // Reset font weight
-         y += lineSpacing * 0.5; // Adjust spacing after note
-    }
-
-    // General Notes & Closing (Adjusted Margins and Font)
-    pdf.setFontSize(9); // Consistent smaller font for notes
-    pdf.setTextColor(0); // Ensure black text
-
-    // GELÖSCHT: Vormalige Position der Funktion (war hier)
-
-    // Use leftMargin and contentWidth for alignment
-    y = addWrappedTextPDF('Die oben genannten Preise verstehen sich netto, zuzüglich der gesetzlichen Mehrwertsteuer.', y, leftMargin, contentWidth);
-    const formattedEntgelt = formatLocale(entgeltEuro, { style: 'currency', currency: 'EUR' });
-    y = addWrappedTextPDF(`Bei Vertragsabschluss berechnet die Leasinggesellschaft Ihnen einmalig ein Entgelt in Höhe von ${formattedEntgelt}.`, y, leftMargin, contentWidth);
-    y += sectionSpacing;
-
-    pdf.setFontSize(10); // Slightly larger font for closing remarks
-    y = addWrappedTextPDF('Gerne begleiten wir Sie auch bei weiteren Investitionen in Ihren Betrieb. Kommen Sie ganz unverbindlich auf uns zu.', y, leftMargin, contentWidth, 1.2); // More spacing
-    y = addWrappedTextPDF('Wir freuen uns, für Sie tätig werden zu können und sichern Ihnen bereits jetzt eine faire, schnelle und unbürokratische Abwicklung zu.', y, leftMargin, contentWidth, 1.2);
-    y += sectionSpacing * 1.5;
-
-    pdf.text('Mit freundlichen Grüßen', leftMargin, y);
-
-    // --- Filename ---
-    const pdfTitle = `${values.finanzierungsart || 'Finanzierung'}svertrag (${values.nachname || 'Kunde'}).pdf`;
-    pdf.save(pdfTitle);
-
-    // --- End PDF Generation ---
-  });
-
-
-  // Placeholder styling for select elements (unchanged)
-  document.querySelectorAll('select.is-placeholder').forEach(select => {
-    select.addEventListener('change', (e) => {
-         if (e.target.value) {
-             e.target.classList.remove('is-placeholder');
-         } else {
-             e.target.classList.add('is-placeholder');
-         }
-    });
-    // Initial check in case a value is pre-filled (e.g., browser autofill)
-    if (select.value) {
-         select.classList.remove('is-placeholder');
-    }
-  });
-
-
-  // --- History Modal & Functionality ---
-  const openHistoryModal = () => {
-       loadHistory(); // Load unfiltered history first
-       historySearchInput.value = ''; // Clear search on open
-       historyModal.classList.remove('opacity-0', 'pointer-events-none');
-       historyPanel.classList.remove('-translate-y-10');
-       historySearchInput.focus(); // Focus search input when modal opens
-  };
-
-  const closeHistoryModal = () => {
-       historyModal.classList.add('opacity-0', 'pointer-events-none');
-       historyPanel.classList.add('-translate-y-10');
-  };
-
-  historyButton.addEventListener('click', openHistoryModal);
-  closeHistoryButton.addEventListener('click', closeHistoryModal);
-  historyModal.addEventListener('click', (e) => {
-       // Close only if clicking directly on the background overlay
-       if (e.target === historyModal) {
-           closeHistoryModal();
-       }
-  });
-
-  // Search functionality
-  historySearchInput.addEventListener('input', (e) => {
-       loadHistory(e.target.value); // Reload history list with the search term
-  });
-
-
-  const saveCalculationToHistory = (rate, offerData) => {
-       // Check if rate is valid before saving
-        if (isNaN(rate) || !isFinite(rate)) {
-           console.warn("Invalid rate calculated, not saving to history.");
-           return;
-        }
-
-       const historyEntry = {
-           timestamp: new Date().toISOString(),
-           // Calculation Data
-           anschaffungswert: document.getElementById('anschaffungswert').value,
-           laufzeit: document.getElementById('laufzeit').value,
-           anzahlung: document.getElementById('anzahlung').value,
-           anzahlungToggle: document.getElementById('anzahlung-toggle').checked,
-           restwert: document.getElementById('restwert').value,
-           restwertToggle: document.getElementById('restwert-toggle').checked,
-           basiszins: document.getElementById('basiszins').value,
-           margegesamt: document.getElementById('margegesamt').value,
-           margeToggle: document.getElementById('marge-toggle').checked,
-           monatlicheRate: formatLocale(rate, { style: 'currency', currency: 'EUR' }), // Store formatted rate
-           // Offer Data (passed as argument)
-           finanzierungsart: offerData.finanzierungsart || '',
-           anrede: offerData.anrede || '',
-           vorname: offerData.vorname || '',
-           nachname: offerData.nachname || '',
-           firma: offerData.firma || '',
-           adresse: offerData.adresse || '',
-           plz: offerData.plz || '',
-           ort: offerData.ort || '',
-           objekt: offerData.objekt || '',
-           hersteller: offerData.hersteller || '',
-           // GELÖSCHT: email, telefon, objektart
-       };
-
-       let history = JSON.parse(localStorage.getItem('financingHistory')) || [];
-       // Prevent saving duplicates if inputs haven't changed substantially
-       if (history.length > 0) {
-           const lastEntry = history[0];
-           const calcKeysToCompare = ['anschaffungswert', 'laufzeit', 'anzahlung', 'restwert', 'basiszins', 'margegesamt'];
-           // AKTUALISIERT: offerKeysToCompare (entfernte Felder rausgenommen)
-           const offerKeysToCompare = ['finanzierungsart', 'anrede', 'vorname', 'nachname', 'firma', 'adresse', 'plz', 'ort', 'objekt', 'hersteller'];
-
-
-           const calcIsDuplicate = calcKeysToCompare.every(key => historyEntry[key] === lastEntry[key]) &&
-                                     historyEntry.anzahlungToggle === lastEntry.anzahlungToggle &&
-                                     historyEntry.restwertToggle === lastEntry.restwertToggle &&
-                                     historyEntry.margeToggle === lastEntry.margeToggle;
-
-           // Only consider offer data duplicate if calc data is also duplicate
-           const offerIsDuplicate = offerKeysToCompare.every(key => historyEntry[key] === lastEntry[key]);
-
-
-           if (calcIsDuplicate && offerIsDuplicate) {
-              // console.log("Skipping duplicate history entry.");
-               return; // Don't save if it looks like a duplicate
-           }
-       }
-
-
-       history.unshift(historyEntry); // Add new entry to the beginning
-       if (history.length > 50) { // Keep only the last 50
-           history = history.slice(0, 50);
-       }
-       localStorage.setItem('financingHistory', JSON.stringify(history));
-       console.log("Calculation saved to history.");
-  };
-
-  const loadHistory = (searchTerm = '') => {
-       historyList.innerHTML = ''; // Clear previous list
-       let history = JSON.parse(localStorage.getItem('financingHistory')) || [];
-       const lowerSearchTerm = searchTerm.toLowerCase().trim();
-
-       // Filter history based on search term
-       if (lowerSearchTerm) {
-           history = history.filter(entry => {
-                // Function to check if any value in the entry contains the search term
-                 const checkEntry = (obj) => {
-                     for (const key in obj) {
-                         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                               const value = obj[key];
-                              // Check strings and numbers (convert numbers to string for includes check)
-                             if (typeof value === 'string' && value.toLowerCase().includes(lowerSearchTerm)) {
-                                 return true;
-                             } else if (typeof value === 'number' && String(value).toLowerCase().includes(lowerSearchTerm)) {
-                                 return true;
-                             }
-                             // Don't search boolean toggles directly, search their corresponding value fields
-                              if (key === 'anschaffungswert' && entry.anschaffungswert?.replace(/[.,€\s]/g, '').includes(lowerSearchTerm)) return true;
-                              if (key === 'monatlicheRate' && entry.monatlicheRate?.replace(/[.,€\s]/g, '').includes(lowerSearchTerm)) return true;
-                              if (key === 'anzahlung' && entry.anzahlung?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
-                              if (key === 'restwert' && entry.restwert?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
-                              if (key === 'basiszins' && entry.basiszins?.replace(/[%.,\s]/g, '').includes(lowerSearchTerm)) return true;
-                              if (key === 'margegesamt' && entry.margegesamt?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
-
-                         }
-                     }
-                     return false;
-                 };
-                 return checkEntry(entry);
-            });
-
-       }
-
-
-       if (history.length === 0) {
-           if(lowerSearchTerm) {
-                historyList.innerHTML = `<p class="text-slate-500 text-center py-8">Keine Einträge für "${searchTerm}" gefunden.</p>`;
-           } else {
-                historyList.innerHTML = `<p class="text-slate-500 text-center py-8">Noch keine Berechnungen gespeichert.</p>`;
-           }
-           return;
-       }
-
-       history.forEach((entry, index) => {
-           const date = new Date(entry.timestamp);
-           // Format date and time clearly
-           const formattedDate = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-           const formattedTime = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-            // Determine display name based on priority
-             let displayName = 'N/A';
-             if (entry.nachname) {
-                 displayName = entry.nachname;
-             } else if (entry.firma) {
-                 displayName = entry.firma;
-             } else if (entry.vorname) {
-                 displayName = entry.vorname;
-             } else if (entry.objekt) {
-                 displayName = entry.objekt;
-             }
-
-
-           const item = document.createElement('div');
-           item.className = 'p-4 border border-gray-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors group'; // Added group for potential hover effects on children
-           item.innerHTML = `
-               <div class="flex justify-between items-start gap-4">
-                   <div class="flex-grow min-w-0"> <p class="font-semibold text-lg text-[#032659] mb-1 truncate">${entry.monatlicheRate || 'N/A'} <span class="text-sm font-normal text-slate-500 ml-2">(${displayName})</span></p> <p class="text-sm text-slate-600 truncate"> <span title="Anschaffungswert">AW: ${formatLocale(unformat(entry.anschaffungswert), { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span> |
-                           <span title="Laufzeit">LZ: ${entry.laufzeit} M</span> |
-                           <span title="Anzahlung">A${entry.anzahlungToggle ? '%' : '€'}: ${entry.anzahlung}</span> |
-                           <span title="Restwert">R${entry.restwertToggle ? '%' : '€'}: ${entry.restwert}</span> |
-                           <span title="Basiszinssatz">BZ: ${entry.basiszins}%</span> |
-                           <span title="Marge">M${entry.margeToggle ? '%' : '€'}: ${entry.margegesamt}</span>
-                       </p>
-                   </div>
-                   <div class="text-right flex-shrink-0">
-                       <p class="text-xs text-slate-400">${formattedDate}</p>
-                       <p class="text-xs text-slate-400">${formattedTime} Uhr</p>
-                   </div>
-                    <button class="delete-history-item p-1.5 rounded-full hover:bg-red-100 transition-colors self-center flex-shrink-0" data-timestamp="${entry.timestamp}" title="Diesen Eintrag löschen">
-                       <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                       </svg>
-                   </button>
-               </div>
-           `;
-           // Prevent item click event from firing when delete button is clicked
-           item.querySelector('.delete-history-item').addEventListener('click', (e) => {
-               e.stopPropagation(); // Stop propagation to prevent item click
-               deleteHistoryEntry(e.currentTarget.dataset.timestamp);
-           });
-           item.addEventListener('click', () => {
-               restoreFromHistory(entry);
-           });
-           historyList.appendChild(item);
-       });
-  };
-
-   const deleteHistoryEntry = (timestampToDelete) => {
-       let history = JSON.parse(localStorage.getItem('financingHistory')) || [];
-       const updatedHistory = history.filter(entry => entry.timestamp !== timestampToDelete);
-       localStorage.setItem('financingHistory', JSON.stringify(updatedHistory));
-       loadHistory(historySearchInput.value); // Reload history with current search term
-   };
-
-
-  const restoreFromHistory = (entry) => {
-    console.log("Restoring from history:", entry);
-    // Set calculation values directly
-    document.getElementById('anschaffungswert').value = entry.anschaffungswert;
-    document.getElementById('laufzeit').value = entry.laufzeit;
-    document.getElementById('basiszins').value = entry.basiszins;
-    document.getElementById('anzahlung').value = entry.anzahlung;
-    document.getElementById('restwert').value = entry.restwert;
-    document.getElementById('margegesamt').value = entry.margegesamt;
-
-    // Set toggle states
-    document.getElementById('anzahlung-toggle').checked = entry.anzahlungToggle;
-    document.getElementById('restwert-toggle').checked = entry.restwertToggle;
-    document.getElementById('marge-toggle').checked = entry.margeToggle;
-
-    // Manually update unit labels based on restored toggle state
-    document.getElementById('anzahlung-unit').textContent = entry.anzahlungToggle ? '(%)' : '(€)';
-    document.getElementById('restwert-unit').textContent = entry.restwertToggle ? '(%)' : '(€)';
-    document.getElementById('marge-unit').textContent = entry.margeToggle ? '(%)' : '(€)';
-
-    // Restore ALL offer data fields
-    document.getElementById('finanzierungsart').value = entry.finanzierungsart || '';
-    document.getElementById('anrede').value = entry.anrede || '';
-    document.getElementById('vorname').value = entry.vorname || '';
-    document.getElementById('nachname').value = entry.nachname || '';
-    document.getElementById('firma').value = entry.firma || '';
-    document.getElementById('adresse').value = entry.adresse || '';
-    document.getElementById('plz').value = entry.plz || '';
-    document.getElementById('ort').value = entry.ort || '';
-    document.getElementById('objekt').value = entry.objekt || '';
-    document.getElementById('hersteller').value = entry.hersteller || '';
-    // GELÖSCHT: email, telefon, objektart
-
-     // Update placeholder class for select elements after restoring
-    document.querySelectorAll('select.is-placeholder').forEach(select => {
-         if (select.value) {
-             select.classList.remove('is-placeholder');
-         } else {
-             select.classList.add('is-placeholder');
-         }
-    });
-
-
-    // Apply formatting to restored calculation values
-    document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => formatInput({ target: input }));
-
-    // Mark that a calculation should happen
-    calculateBtn.dataset.clicked = "true";
-    performCalculation(true); // Recalculate, passing true to prevent re-saving
-    closeHistoryModal();
-  };
-
-
-   // Initial setup on page load
-   document.addEventListener('DOMContentLoaded', (event) => {
-         // Show placeholder initially
-         showPlaceholder();
-
-         // Add blur listener for formatting numeric inputs initially
-         document.querySelectorAll('.numeric-input').forEach(input => {
-             input.addEventListener('blur', formatInput);
-              // Initial format check
-              formatInput({ target: input });
-         });
-          // Add blur listener for laufzeit as well
-         const laufzeitInput = document.getElementById('laufzeit');
-         laufzeitInput.addEventListener('blur', formatInput);
-         formatInput({ target: laufzeitInput }); // Initial format check
-
-         // Set initial state for select placeholders
-         document.querySelectorAll('select.is-placeholder').forEach(select => {
-              if (!select.value) {
-                  select.classList.add('is-placeholder');
-              }
-         });
-   });
-
-
+ const unformat = (str) => {
+   if (typeof str!== 'string' ||!str) return 0;
+   return parseFloat(str.replace(/\./g, '').replace(',', '.').replace(/\s/g, '')) |
+
+| 0;
+ };
+ function formatLocale(value, options = {}) {
+   if (value === null |
+
+| value === undefined |
+| value === '') return '';
+   const numValue = Number(value);
+   if (isNaN(numValue)) return '';
+   const defaultOptions = { style: 'currency', currency: 'EUR',...options };
+   return numValue.toLocaleString('de-DE', defaultOptions);
+ }
+ function formatInput(event) {
+   const el = event.target;
+   if (!el.value |
+
+| el.value === ',' |
+| el.value === '.') return;
+   if (el.classList.contains('numeric-input') |
+
+| el.id === 'basiszins') {
+        const numericValue = unformat(el.value);
+        if (!isNaN(numericValue)) {
+          el.value = formatLocale(numericValue, { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        } else {
+          el.value = '';
+        }
+   } else if (el.id === 'laufzeit') {
+        const intValue = parseInt(el.value.replace(/\D/g, ''));
+        el.value = isNaN(intValue)? '' : intValue.toString();
+   }
+ }
+
+ function PMT(rate, nper, pv, fv = 0) {
+   if (rate === 0) return -(pv + fv) / nper;
+   const pvFactor = Math.pow(1 + rate, nper);
+   return -(rate * (fv + pv * pvFactor)) / (pvFactor - 1);
+ }
+ function RATE(nper, pmt, pv, fv = 0) {
+   const precision = 1e-7;
+   const maxIter = 100;
+   let low = -0.99, high = 5;
+   nper = Number(nper); pmt = Number(pmt); pv = Number(pv); fv = Number(fv);
+   if (isNaN(nper) |
+
+| isNaN(pmt) |
+| isNaN(pv) |
+| isNaN(fv) |
+| nper <= 0) {
+       console.error("Invalid input for RATE function");
+       return NaN;
+   }
+
+   if (Math.abs(pv + pmt * nper + fv) < precision) {
+       return 0;
+   }
+
+   const f = (rate) => {
+     if (rate === 0) return pv + pmt * nper + fv;
+       if (rate <= -1) return Infinity;
+       try {
+         const factor = Math.pow(1 + rate, nper);
+         return pv * factor + pmt * ((factor - 1) / rate) + fv;
+       } catch (e) {
+         console.error("Error in RATE calculation function:", e);
+         return Infinity;
+       }
+   };
+
+     let fLow = f(low);
+     let fHigh = f(high);
+
+     if (isNaN(fLow) |
+
+| isNaN(fHigh)) {
+       console.error("Initial bounds yield NaN for RATE function", {fLow, fHigh});
+       return NaN;
+     }
+
+     if (fLow * fHigh >= 0) {
+         console.warn("RATE function might not have a root in the initial range [-0.99, 5]. Result might be inaccurate.");
+         if (fLow > 0 && fHigh > 0) {
+           low = -0.9999;
+           fLow = f(low);
+         } else if (fLow < 0 && fHigh < 0) {
+           high = 10;
+           fHigh = f(high);
+         }
+         if (isNaN(fLow) |
+
+| isNaN(fHigh) |
+| fLow * fHigh >= 0) {
+             console.error("Could not find suitable bounds for RATE function.");
+             return NaN;
+         }
+
+     }
+
+   for (let i = 0; i < maxIter; i++) {
+     if (isNaN(low) |
+
+| isNaN(high) |
+| low >= high) {
+          console.error("Invalid bounds in RATE iteration", { low, high, i });
+          return NaN;
+     }
+
+     const mid = (low + high) / 2;
+
+       if (mid === low |
+
+| mid === high) {
+           console.warn("RATE stuck in loop, returning current estimate.");
+           break;
+       }
+
+     const fMid = f(mid);
+
+     if (isNaN(fMid)) {
+          console.error("f(mid) resulted in NaN in RATE iteration", { mid, i });
+          if (fLow < 0) high = mid; else low = mid;
+          continue;
+      }
+
+     if (Math.abs(fMid) < precision) {
+       return mid * 12;
+     }
+
+     fLow = f(low);
+       if (isNaN(fLow)){
+           console.error("f(low) resulted in NaN during RATE update", {low, i});
+           low = mid;
+           continue;
+       }
+
+     if (fLow * fMid < 0) {
+       high = mid;
+     } else {
+       low = mid;
+     }
+   }
+    console.warn("RATE did not converge within max iterations. Returning best estimate.");
+   return ((low + high) / 2) * 12;
+ }
+ let costChart = null;
+ const anzahlungToggle = document.getElementById('anzahlung-toggle');
+ const restwertToggle = document.getElementById('restwert-toggle');
+ const margeToggle = document.getElementById('marge-toggle');
+ const anzahlungUnit = document.getElementById('anzahlung-unit');
+ const restwertUnit = document.getElementById('restwert-unit');
+ const margeUnit = document.getElementById('marge-unit');
+ const indikativerZinsEl = document.getElementById('indikativer-zins');
+ const leasingfaktorEl = document.getElementById('leasingfaktor');
+ const gesamtkostenEl = document.getElementById('gesamtkosten');
+ const resultContainer = document.getElementById('result-container');
+ const placeholderContainer = document.getElementById('placeholder-container');
+ const resultText = document.getElementById('result-text');
+ const errorText = document.getElementById('error-text');
+ const costChartCanvas = document.getElementById('cost-chart');
+ const offerToggleBtn = document.getElementById('offer-toggle');
+ const offerContainer = document.getElementById('offer-container');
+ const offerIcon = document.getElementById('offer-icon');
+ const pdfButton = document.getElementById('download-pdf-btn');
+ const calculateBtn = document.getElementById('calculate-btn');
+ const infoButton = document.getElementById('info-button');
+ const infoTooltip = document.getElementById('info-tooltip');
+ const resetButton = document.getElementById('reset-button');
+
+ const historyButton = document.getElementById('history-button');
+ const historyModal = document.getElementById('history-modal');
+ const historyPanel = document.getElementById('history-panel');
+ const closeHistoryButton = document.getElementById('close-history-button');
+ const historyList = document.getElementById('history-list');
+ const historySearchInput = document.getElementById('history-search');
+
+ function performCalculation(isRestoring = false) {
+   if (!calculateBtn.dataset.clicked &&!isRestoring) {
+        showPlaceholder();
+        return;
+   }
+
+   const av = unformat(document.getElementById('anschaffungswert').value);
+   const lz = parseInt(document.getElementById('laufzeit').value) |
+
+| 0;
+   const bz = unformat(document.getElementById('basiszins').value);
+   const azInput = unformat(document.getElementById('anzahlung').value);
+   const rwInput = unformat(document.getElementById('restwert').value);
+   const margeInput = unformat(document.getElementById('margegesamt').value);
+   const az = anzahlungToggle.checked? (azInput / 100) * av : azInput;
+   const rw = restwertToggle.checked? (rwInput / 100) * av : rwInput;
+   const marge = margeToggle.checked? (margeInput / 100) * av : margeInput;
+
+   if (av <= 0 |
+
+| lz <= 0) {
+     showError("Anschaffungswert und Laufzeit müssen größer als 0 sein.");
+     clearResultsOnError();
+     return;
+   }
+
+   hideError();
+   const finanzierungsbetrag = av - az;
+   const principal = av - az + marge;
+   if (principal < 0 && rw <= 0) {
+        console.warn("Calculation might be invalid: Negative principal with non-positive residual value.");
+   }
+
+   const monRate = bz / 100 / 12;
+
+     if (isNaN(monRate) |
+
+| isNaN(lz) |
+| isNaN(principal) |
+| isNaN(rw)) {
+         showError("Ungültige Eingabe für Zinsberechnung.");
+         clearResultsOnError();
+         return;
+     }
+
+   const leasingInternal = PMT(monRate, lz, principal, -rw);
+     if (isNaN(leasingInternal) ||!isFinite(leasingInternal)) {
+         showError("Berechnung der Rate fehlgeschlagen. Prüfen Sie die Eingaben.");
+         clearResultsOnError();
+         return;
+     }
+
+   const leasingRate = -leasingInternal;
+
+   if (!isRestoring && calculateBtn.dataset.clicked === "true" && av > 0 && lz > 0) {
+       const offerData = {
+           finanzierungsart: document.getElementById('finanzierungsart').value |
+
+| '',
+           anrede: document.getElementById('anrede').value |
+
+| '',
+           vorname: document.getElementById('vorname').value |
+
+| '',
+           nachname: document.getElementById('nachname').value |
+
+| '',
+           firma: document.getElementById('firma').value |
+
+| '',
+           adresse: document.getElementById('adresse').value |
+
+| '',
+           plz: document.getElementById('plz').value |
+
+| '',
+           ort: document.getElementById('ort').value |
+
+| '',
+           objekt: document.getElementById('objekt').value |
+
+| '',
+           hersteller: document.getElementById('hersteller').value |
+
+| '',
+       };
+       saveCalculationToHistory(leasingRate, offerData);
+   }
+
+   displayResult(leasingRate, az, rw, av, lz);
+
+   const indZins = RATE(lz, leasingInternal, finanzierungsbetrag, -rw);
+   if (!isNaN(indZins)) {
+        indikativerZinsEl.value = formatLocale(indZins * 100, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
+   } else {
+        indikativerZinsEl.value = 'N/A';
+        console.error("RATE calculation failed.");
+   }
+
+   calculateBtn.dataset.clicked = "false";
+ }
+
+ function resetAllInputs() {
+       document.getElementById('anschaffungswert').value = '0';
+       document.getElementById('laufzeit').value = '0';
+       document.getElementById('basiszins').value = '0';
+       document.getElementById('anzahlung').value = '0';
+       document.getElementById('restwert').value = '0';
+       document.getElementById('margegesamt').value = '0';
+
+       if (anzahlungToggle.checked) anzahlungToggle.checked = false;
+       if (restwertToggle.checked) restwertToggle.checked = false;
+       if (margeToggle.checked) margeToggle.checked = false;
+       anzahlungUnit.textContent = '(€)';
+       restwertUnit.textContent = '(€)';
+       margeUnit.textContent = '(€)';
+
+       document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => formatInput({ target: input }));
+
+       document.getElementById('finanzierungsart').value = '';
+       document.getElementById('anrede').value = '';
+       document.getElementById('vorname').value = '';
+       document.getElementById('nachname').value = '';
+       document.getElementById('firma').value = '';
+       document.getElementById('adresse').value = '';
+       document.getElementById('plz').value = '';
+       document.getElementById('ort').value = '';
+       document.getElementById('objekt').value = '';
+       document.getElementById('hersteller').value = '';
+
+       document.querySelectorAll('select.is-placeholder').forEach(select => {
+           select.classList.add('is-placeholder');
+           const parent = select.closest('.relative');
+           const icon = parent?.querySelector('.error-icon');
+           select.classList.remove('has-error');
+           if (icon) icon.classList.add('hidden');
+       });
+
+       const offerErrorMessage = document.getElementById('offer-error-message');
+       offerErrorMessage.classList.add('hidden');
+       offerErrorMessage.textContent = '';
+       offerContainer.querySelectorAll('input[required]').forEach(field => {
+           const parent = field.closest('.relative');
+           const icon = parent?.querySelector('.error-icon');
+           field.classList.remove('has-error');
+           if (icon) icon.classList.add('hidden');
+       });
+
+       showPlaceholder();
+
+       calculateBtn.dataset.clicked = "false";
+ }
+
+ function clearResultsOnError() {
+   if (costChart) { costChart.destroy(); costChart = null; }
+   resultText.textContent = '';
+   indikativerZinsEl.value = '';
+   leasingfaktorEl.value = '';
+   gesamtkostenEl.value = '';
+   resultContainer.classList.add('hidden');
+   placeholderContainer.classList.remove('hidden');
+ }
+
+ function showPlaceholder() {
+    if (costChart) { costChart.destroy(); costChart = null; }
+    resultText.textContent = '';
+    indikativerZinsEl.value = '';
+    leasingfaktorEl.value = '';
+    gesamtkostenEl.value = '';
+    resultContainer.classList.add('hidden');
+    placeholderContainer.classList.remove('hidden');
+    hideError();
+ }
+
+ function displayResult(rate, anzahlung, restwert, av, monate) {
+   resultContainer.classList.remove('hidden');
+   resultContainer.classList.add('fade-in');
+   placeholderContainer.classList.add('hidden');
+   resultText.textContent = formatLocale(rate, { style: 'currency', currency: 'EUR' });
+   const kosten = anzahlung + rate * (monate |
+
+| 0) + restwert;
+   gesamtkostenEl.value = formatLocale(kosten, { style: 'currency', currency: 'EUR' });
+   const faktor = av > 0? (rate / av) * 100 : 0;
+   leasingfaktorEl.value = formatLocale(faktor, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
+   updateCostChart(anzahlung, rate * (monate |
+
+| 0), restwert);
+ }
+ function updateCostChart(anzahlung, summeRaten, restwert) {
+   if (costChart) costChart.destroy();
+   const ctx = costChartCanvas.getContext('2d');
+   const values =.map(v => Math.max(0, v));
+   const total = values.reduce((a, b) => a + b, 0);
+   costChart = new Chart(ctx, {
+     type: 'doughnut',
+     data: {
+       labels:,
+       datasets: [{
+         data: values,
+         backgroundColor: ['#032659', '#004225', '#E35335'],
+         borderColor: '#F8F9FA',
+         borderWidth: 5,
+         hoverOffset: 10
+       }]
+     },
+     options: {
+       responsive: true,
+       cutout: '75%',
+       plugins: {
+         legend: {
+           position: 'bottom',
+           align: 'start',
+           labels: {
+             color: '#6C757D',
+             padding: 20,
+             boxWidth: 12,
+             font: {
+               size: 14,
+               family: "'Montserrat', sans-serif"
+             }
+           },
+           onClick: (e, legendItem, legend) => {
+             const idx = legendItem.index;
+             const chart = legend.chart;
+             chart.toggleDataVisibility(idx);
+             chart.update();
+
+             let visibleSum = 0;
+             chart.getDatasetMeta(0).data.forEach((arc, i) => {
+               if (chart.getDataVisibility(i)) {
+                 visibleSum += chart.data.datasets.data[i];
+               }
+             });
+              gesamtkostenEl.value = formatLocale(visibleSum, { style: 'currency', currency: 'EUR' });
+           }
+         },
+         tooltip: {
+           callbacks: {
+             label: ctx => {
+                 if (ctx.label && typeof ctx.parsed === 'number') {
+                     return `${ctx.label}: ${formatLocale(ctx.parsed, { style: 'currency', currency: 'EUR' })}`;
+                 }
+                 return '';
+             }
+           }
+         }
+       }
+     }
+   });
+   gesamtkostenEl.value = formatLocale(total, { style: 'currency', currency: 'EUR' });
+ }
+ function showError(msg) {
+   errorText.textContent = msg;
+ }
+ function hideError() {
+   errorText.textContent = '';
+ }
+ function setupToggle(toggleEl, inputEl, unitEl) {
+   toggleEl.addEventListener('change', () => {
+     const av = unformat(document.getElementById('anschaffungswert').value);
+     const currentVal = unformat(inputEl.value);
+     if (toggleEl.checked) {
+       unitEl.textContent = '(%)';
+       if (av > 0) {
+         inputEl.value = formatLocale((currentVal / av) * 100, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+       } else {
+          inputEl.value = formatLocale(currentVal, { style:'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+       }
+     } else {
+       unitEl.textContent = '(€)';
+       if (av > 0) {
+         inputEl.value = formatLocale((currentVal / 100) * av, { style:'decimal', maximumFractionDigits: 0 });
+       } else {
+          inputEl.value = formatLocale(currentVal, { style:'decimal', maximumFractionDigits: 0 });
+       }
+     }
+     formatInput({ target: inputEl });
+   });
+ }
+
+ setupToggle(anzahlungToggle, document.getElementById('anzahlung'), anzahlungUnit);
+ setupToggle(restwertToggle, document.getElementById('restwert'), restwertUnit);
+ setupToggle(margeToggle, document.getElementById('margegesamt'), margeUnit);
+
+ document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => {
+   input.addEventListener('blur', formatInput);
+    formatInput({ target: input });
+ });
+
+ calculateBtn.addEventListener('click', () => {
+      calculateBtn.dataset.clicked = "true";
+      performCalculation();
+ });
+
+ resetButton.addEventListener('click', resetAllInputs);
+
+ infoButton.addEventListener('mouseenter', () => infoTooltip.classList.remove('hidden'));
+ infoButton.addEventListener('mouseleave', () => infoTooltip.classList.add('hidden'));
+
+ offerToggleBtn.addEventListener('click', () => {
+   const isOpen = offerContainer.classList.toggle('open-offer');
+   offerIcon.style.transform = isOpen? 'rotate(45deg)' : 'rotate(0deg)';
+   offerContainer.style.maxHeight = isOpen? offerContainer.scrollHeight + 'px' : null;
+ });
+  
+   pdfButton.addEventListener('click', () => {
+   const offerErrorMessage = document.getElementById('offer-error-message');
+   const requiredFields = Array.from(offerContainer.querySelectorAll('[required]'));
+   let isFormValid = true;
+
+   requiredFields.forEach(field => {
+        const parent = field.closest('.relative');
+        const icon = parent?.querySelector('.error-icon');
+        field.classList.remove('has-error');
+        if (icon) icon.classList.add('hidden');
+   });
+
+   requiredFields.forEach(field => {
+     if (!field.value.trim()) {
+       isFormValid = false;
+       const parent = field.closest('.relative');
+       const icon = parent?.querySelector('.error-icon');
+       field.classList.add('has-error');
+       if (icon) icon.classList.remove('hidden');
+     }
+   });
+
+   if (!resultText.textContent |
+
+| resultContainer.classList.contains('hidden')) {
+        offerErrorMessage.textContent = 'Bitte führen Sie zuerst eine gültige Berechnung durch.';
+        offerErrorMessage.classList.remove('hidden');
+        isFormValid = false;
+        if (calculateBtn) calculateBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+   }
+
+   if (!isFormValid) {
+        if (!offerErrorMessage.textContent) {
+            offerErrorMessage.textContent = 'Bitte füllen Sie alle markierten Felder aus, um das Angebot herunterzuladen.';
+            offerErrorMessage.classList.remove('hidden');
+        }
+        const firstError = offerContainer.querySelector('.has-error');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus({ preventScroll: true });
+        }
+        return;
+   }
+
+   offerErrorMessage.classList.add('hidden');
+
+   const values = {
+     anschaffungswertRaw: unformat(document.getElementById('anschaffungswert').value),
+     laufzeit: document.getElementById('laufzeit').value,
+     anzahlungRaw: unformat(document.getElementById('anzahlung').value),
+     anzahlungToggle: anzahlungToggle.checked,
+     restwertRaw: unformat(document.getElementById('restwert').value),
+     restwertToggle: restwertToggle.checked,
+     monatlicheRate: resultText.textContent,
+     finanzierungsart: document.getElementById('finanzierungsart').value,
+     anrede: document.getElementById('anrede').value,
+     nachname: document.getElementById('nachname').value,
+     firma: document.getElementById('firma').value,
+     adresse: document.getElementById('adresse').value,
+     plz: document.getElementById('plz').value,
+     ort: document.getElementById('ort').value,
+     objekt: document.getElementById('objekt').value,
+     hersteller: document.getElementById('hersteller').value,
+   };
+
+   const avNum = values.anschaffungswertRaw;
+   const anzahlungEuro = values.anzahlungToggle? (values.anzahlungRaw / 100) * avNum : values.anzahlungRaw;
+   const restwertEuro = values.restwertToggle? (values.restwertRaw / 100) * avNum : values.restwertRaw;
+   const entgeltEuro = restwertEuro;
+
+   const { jsPDF } = window.jspdf;
+   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+   pdf.setFont('helvetica', 'normal');
+   pdf.setTextColor(0);
+   pdf.setFontSize(10);
+
+   let y = 25;
+   const leftMargin = 20;
+   const valueXPos = 70;
+   const pageWidth = pdf.internal.pageSize.getWidth();
+   const contentWidth = pageWidth - leftMargin * 2;
+   const lineSpacing = 6;
+   const sectionSpacing = 10;
+
+   const addressStartY = y;
+   if (values.firma) { pdf.text(values.firma, leftMargin, y); y += 5; }
+   if (values.anrede |
+
+| values.nachname) { pdf.text(`${values.anrede |
+| ''} ${values.nachname |
+| ''}`.trim(), leftMargin, y); y += 5; }
+   if (values.adresse) { pdf.text(values.adresse, leftMargin, y); y += 5; }
+   if (values.plz |
+
+| values.ort) { pdf.text(`${values.plz |
+| ''} ${values.ort |
+| ''}`.trim(), leftMargin, y); y += 5; }
+
+   y = Math.max(y, addressStartY) + sectionSpacing * 1.5;
+
+   pdf.setFontSize(11);
+   pdf.setFont('helvetica', 'bold');
+   if(values.objekt |
+
+| values.hersteller) {
+        pdf.text(`Finanzierungsangebot: ${values.objekt |
+
+| ''} ${values.hersteller |
+| ''}`.trim(), leftMargin, y);
+   } else {
+        pdf.text(`Finanzierungsangebot`, leftMargin, y);
+   }
+   y += lineSpacing * 2;
+
+   pdf.setFont('helvetica', 'normal');
+   pdf.setFontSize(11);
+   pdf.text(`Sehr ${values.anrede === 'Frau'? 'geehrte Frau' : 'geehrter Herr'} ${values.nachname |
+
+| ''},`, leftMargin, y);
+   y += lineSpacing * 1.5;
+
+   const requestType = values.finanzierungsart === 'Mietkauf'? 'Mietkaufanfrage' : 'Leasinganfrage';
+   pdf.text(`wir danken für Ihre ${requestType} und bieten wie folgt unverbindlich an:`, leftMargin, y);
+   y += sectionSpacing * 1.5;
+
+   const addDetailLinePDF = (label, value) => {
+        if (value |
+
+| value === 0 |
+| String(value).replace(/[€\s]/g, '').trim()!== '') {
+             pdf.setFontSize(10);
+             pdf.setFont('helvetica', 'bold');
+             pdf.text(`${label}:`, leftMargin, y);
+             pdf.setFont('helvetica', 'normal');
+             pdf.text(String(value), valueXPos, y);
+             y += lineSpacing;
+        }
+   };
+
+   addDetailLinePDF('Anschaffungspreis', formatLocale(avNum, { style: 'currency', currency: 'EUR'}));
+   addDetailLinePDF('Laufzeit', values.laufzeit? `${values.laufzeit} Monate` : 'N/A');
+   addDetailLinePDF('Mietsonderzahlung', formatLocale(anzahlungEuro, { style: 'currency', currency: 'EUR'}));
+   addDetailLinePDF('Monatliche Rate', values.monatlicheRate);
+   addDetailLinePDF('Restwert', formatLocale(restwertEuro, { style: 'currency', currency: 'EUR'}));
+
+   y += lineSpacing * 0.5;
+
+   const addWrappedTextPDF = (text, startY, margin, width, lineSpacingScale = 1.0, isBold = false) => {
+        const currentSize = pdf.getFontSize();
+        const currentStyle = pdf.getFont().fontStyle;
+
+        if (isBold) pdf.setFont('helvetica', 'bold');
+        else pdf.setFont('helvetica', 'normal');
+
+        const lines = pdf.splitTextToSize(text, width);
+        pdf.text(lines, margin, startY);
+
+        pdf.setFont('helvetica', currentStyle);
+        pdf.setFontSize(currentSize);
+
+        return startY + (lines.length * (lineSpacing * 0.8) * lineSpacingScale);
+   };
+
+   if (values.finanzierungsart === 'Mietkauf') {
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0);
+        y = addWrappedTextPDF('Hinweis: Die gesetzl. Mehrwertsteuer fällt vorab auf die Summe aller Zahlungen an.', y, leftMargin, contentWidth, 1.0, true);
+        pdf.setFont('helvetica', 'normal');
+        y += lineSpacing * 0.5;
+   }
+
+   pdf.setFontSize(9);
+   pdf.setTextColor(0);
+
+   y = addWrappedTextPDF('Die oben genannten Preise verstehen sich netto, zuzüglich der gesetzlichen Mehrwertsteuer.', y, leftMargin, contentWidth);
+   const formattedEntgelt = formatLocale(entgeltEuro, { style: 'currency', currency: 'EUR' });
+   y = addWrappedTextPDF(`Bei Vertragsabschluss berechnet die Leasinggesellschaft Ihnen einmalig ein Entgelt in Höhe von ${formattedEntgelt}.`, y, leftMargin, contentWidth);
+   y += sectionSpacing;
+
+   pdf.setFontSize(10);
+   y = addWrappedTextPDF('Gerne begleiten wir Sie auch bei weiteren Investitionen in Ihren Betrieb. Kommen Sie ganz unverbindlich auf uns zu.', y, leftMargin, contentWidth, 1.2);
+   y = addWrappedTextPDF('Wir freuen uns, für Sie tätig werden zu können und sichern Ihnen bereits jetzt eine faire, schnelle und unbürokratische Abwicklung zu.', y, leftMargin, contentWidth, 1.2);
+   y += sectionSpacing * 1.5;
+
+   pdf.text('Mit freundlichen Grüßen', leftMargin, y);
+
+   const pdfTitle = `${values.finanzierungsart |
+
+| 'Finanzierung'}svertrag (${values.nachname |
+| 'Kunde'}).pdf`;
+   pdf.save(pdfTitle);
+ });
+
+ document.querySelectorAll('select.is-placeholder').forEach(select => {
+   select.addEventListener('change', (e) => {
+        if (e.target.value) {
+            e.target.classList.remove('is-placeholder');
+        } else {
+            e.target.classList.add('is-placeholder');
+        }
+   });
+   if (select.value) {
+        select.classList.remove('is-placeholder');
+   }
+ });
+
+ const openHistoryModal = () => {
+      loadHistory();
+      historySearchInput.value = '';
+      historyModal.classList.remove('opacity-0', 'pointer-events-none');
+      historyPanel.classList.remove('-translate-y-10');
+      historySearchInput.focus();
+ };
+
+ const closeHistoryModal = () => {
+      historyModal.classList.add('opacity-0', 'pointer-events-none');
+      historyPanel.classList.add('-translate-y-10');
+ };
+
+ historyButton.addEventListener('click', openHistoryModal);
+ closeHistoryButton.addEventListener('click', closeHistoryModal);
+ historyModal.addEventListener('click', (e) => {
+      if (e.target === historyModal) {
+          closeHistoryModal();
+      }
+ });
+
+ historySearchInput.addEventListener('input', (e) => {
+      loadHistory(e.target.value);
+ });
+
+ const saveCalculationToHistory = (rate, offerData) => {
+      if (isNaN(rate) ||!isFinite(rate)) {
+          console.warn("Invalid rate calculated, not saving to history.");
+          return;
+      }
+
+      const historyEntry = {
+          timestamp: new Date().toISOString(),
+          anschaffungswert: document.getElementById('anschaffungswert').value,
+          laufzeit: document.getElementById('laufzeit').value,
+          anzahlung: document.getElementById('anzahlung').value,
+          anzahlungToggle: document.getElementById('anzahlung-toggle').checked,
+          restwert: document.getElementById('restwert').value,
+          restwertToggle: document.getElementById('restwert-toggle').checked,
+          basiszins: document.getElementById('basiszins').value,
+          margegesamt: document.getElementById('margegesamt').value,
+          margeToggle: document.getElementById('marge-toggle').checked,
+          monatlicheRate: formatLocale(rate, { style: 'currency', currency: 'EUR' }),
+          finanzierungsart: offerData.finanzierungsart |
+
+| '',
+          anrede: offerData.anrede |
+
+| '',
+          vorname: offerData.vorname |
+
+| '',
+          nachname: offerData.nachname |
+
+| '',
+          firma: offerData.firma |
+
+| '',
+          adresse: offerData.adresse |
+
+| '',
+          plz: offerData.plz |
+
+| '',
+          ort: offerData.ort |
+
+| '',
+          objekt: offerData.objekt |
+
+| '',
+          hersteller: offerData.hersteller |
+
+| '',
+      };
+
+      let history = JSON.parse(localStorage.getItem('financingHistory')) ||;
+      if (history.length > 0) {
+          const lastEntry = history;
+          const calcKeysToCompare = ['anschaffungswert', 'laufzeit', 'anzahlung', 'restwert', 'basiszins', 'margegesamt'];
+          const offerKeysToCompare = ['finanzierungsart', 'anrede', 'vorname', 'nachname', 'firma', 'adresse', 'plz', 'ort', 'objekt', 'hersteller'];
+
+          const calcIsDuplicate = calcKeysToCompare.every(key => historyEntry[key] === lastEntry[key]) &&
+                                 historyEntry.anzahlungToggle === lastEntry.anzahlungToggle &&
+                                 historyEntry.restwertToggle === lastEntry.restwertToggle &&
+                                 historyEntry.margeToggle === lastEntry.margeToggle;
+
+          const offerIsDuplicate = offerKeysToCompare.every(key => historyEntry[key] === lastEntry[key]);
+
+          if (calcIsDuplicate && offerIsDuplicate) {
+               return;
+          }
+      }
+
+      history.unshift(historyEntry);
+      if (history.length > 50) {
+          history = history.slice(0, 50);
+      }
+      localStorage.setItem('financingHistory', JSON.stringify(history));
+      console.log("Calculation saved to history.");
+ };
+
+ const loadHistory = (searchTerm = '') => {
+      historyList.innerHTML = '';
+      let history = JSON.parse(localStorage.getItem('financingHistory')) ||;
+      const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+      if (lowerSearchTerm) {
+          history = history.filter(entry => {
+               const checkEntry = (obj) => {
+                   for (const key in obj) {
+                       if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                           const value = obj[key];
+                           if (typeof value === 'string' && value.toLowerCase().includes(lowerSearchTerm)) {
+                               return true;
+                           } else if (typeof value === 'number' && String(value).toLowerCase().includes(lowerSearchTerm)) {
+                               return true;
+                           }
+                            if (key === 'anschaffungswert' && entry.anschaffungswert?.replace(/[.,€\s]/g, '').includes(lowerSearchTerm)) return true;
+                            if (key === 'monatlicheRate' && entry.monatlicheRate?.replace(/[.,€\s]/g, '').includes(lowerSearchTerm)) return true;
+                            if (key === 'anzahlung' && entry.anzahlung?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
+                            if (key === 'restwert' && entry.restwert?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
+                            if (key === 'basiszins' && entry.basiszins?.replace(/[%.,\s]/g, '').includes(lowerSearchTerm)) return true;
+                            if (key === 'margegesamt' && entry.margegesamt?.replace(/[.,€%\s]/g, '').includes(lowerSearchTerm)) return true;
+                       }
+                   }
+                   return false;
+               };
+               return checkEntry(entry);
+          });
+      }
+
+      if (history.length === 0) {
+          if(lowerSearchTerm) {
+               historyList.innerHTML = `<p class="text-slate-500 text-center py-8">Keine Einträge für "${searchTerm}" gefunden.</p>`;
+          } else {
+               historyList.innerHTML = `<p class="text-slate-500 text-center py-8">Noch keine Berechnungen gespeichert.</p>`;
+          }
+          return;
+      }
+
+      history.forEach((entry, index) => {
+          const date = new Date(entry.timestamp);
+          const formattedDate = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          const formattedTime = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+           let displayName = 'N/A';
+           if (entry.nachname) {
+               displayName = entry.nachname;
+           } else if (entry.firma) {
+               displayName = entry.firma;
+           } else if (entry.vorname) {
+               displayName = entry.vorname;
+           } else if (entry.objekt) {
+               displayName = entry.objekt;
+           }
+
+          const item = document.createElement('div');
+          item.className = 'p-4 border border-gray-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors group';
+          item.innerHTML = `
+               <div class="flex justify-between items-start gap-4">
+                   <div class="flex-grow min-w-0"><p class="font-semibold text-lg text-[#032659] mb-1 truncate">${entry.monatlicheRate |
+
+| 'N/A'} <span class="text-sm font-normal text-slate-500 ml-2">(${displayName})</span></p><p class="text-sm text-slate-600 truncate"><span title="Anschaffungswert">AW: ${formatLocale(unformat(entry.anschaffungswert), { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span> |
+                           <span title="Laufzeit">LZ: ${entry.laufzeit} M</span> |
+                           <span title="Anzahlung">A${entry.anzahlungToggle? '%' : '€'}: ${entry.anzahlung}</span> |
+                           <span title="Restwert">R${entry.restwertToggle? '%' : '€'}: ${entry.restwert}</span> |
+                           <span title="Basiszinssatz">BZ: ${entry.basiszins}%</span> |
+                           <span title="Marge">M${entry.margeToggle? '%' : '€'}: ${entry.margegesamt}</span>
+                       </p>
+                   </div>
+                   <div class="text-right flex-shrink-0">
+                       <p class="text-xs text-slate-400">${formattedDate}</p>
+                       <p class="text-xs text-slate-400">${formattedTime} Uhr</p>
+                   </div>
+                   <button class="delete-history-item p-1.5 rounded-full hover:bg-red-100 transition-colors self-center flex-shrink-0" data-timestamp="${entry.timestamp}" title="Diesen Eintrag löschen">
+                       <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                       </svg>
+                   </button>
+               </div>
+           `;
+          item.querySelector('.delete-history-item').addEventListener('click', (e) => {
+               e.stopPropagation();
+               deleteHistoryEntry(e.currentTarget.dataset.timestamp);
+          });
+          item.addEventListener('click', () => {
+               restoreFromHistory(entry);
+          });
+          historyList.appendChild(item);
+      });
+ };
+
+  const deleteHistoryEntry = (timestampToDelete) => {
+      let history = JSON.parse(localStorage.getItem('financingHistory')) ||;
+      const updatedHistory = history.filter(entry => entry.timestamp!== timestampToDelete);
+      localStorage.setItem('financingHistory', JSON.stringify(updatedHistory));
+      loadHistory(historySearchInput.value);
+  };
+
+ const restoreFromHistory = (entry) => {
+   console.log("Restoring from history:", entry);
+   document.getElementById('anschaffungswert').value = entry.anschaffungswert;
+   document.getElementById('laufzeit').value = entry.laufzeit;
+   document.getElementById('basiszins').value = entry.basiszins;
+   document.getElementById('anzahlung').value = entry.anzahlung;
+   document.getElementById('restwert').value = entry.restwert;
+   document.getElementById('margegesamt').value = entry.margegesamt;
+
+   document.getElementById('anzahlung-toggle').checked = entry.anzahlungToggle;
+   document.getElementById('restwert-toggle').checked = entry.restwertToggle;
+   document.getElementById('marge-toggle').checked = entry.margeToggle;
+
+   document.getElementById('anzahlung-unit').textContent = entry.anzahlungToggle? '(%)' : '(€)';
+   document.getElementById('restwert-unit').textContent = entry.restwertToggle? '(%)' : '(€)';
+   document.getElementById('marge-unit').textContent = entry.margeToggle? '(%)' : '(€)';
+
+   document.getElementById('finanzierungsart').value = entry.finanzierungsart |
+
+| '';
+   document.getElementById('anrede').value = entry.anrede |
+
+| '';
+   document.getElementById('vorname').value = entry.vorname |
+
+| '';
+   document.getElementById('nachname').value = entry.nachname |
+
+| '';
+   document.getElementById('firma').value = entry.firma |
+
+| '';
+   document.getElementById('adresse').value = entry.adresse |
+
+| '';
+   document.getElementById('plz').value = entry.plz |
+
+| '';
+   document.getElementById('ort').value = entry.ort |
+
+| '';
+   document.getElementById('objekt').value = entry.objekt |
+
+| '';
+   document.getElementById('hersteller').value = entry.hersteller |
+
+| '';
+
+   document.querySelectorAll('select.is-placeholder').forEach(select => {
+        if (select.value) {
+            select.classList.remove('is-placeholder');
+        } else {
+            select.classList.add('is-placeholder');
+        }
+   });
+
+   document.querySelectorAll('.numeric-input, #laufzeit').forEach(input => formatInput({ target: input }));
+
+   calculateBtn.dataset.clicked = "true";
+   performCalculation(true);
+   closeHistoryModal();
+ };
+
+  document.addEventListener('DOMContentLoaded', (event) => {
+        showPlaceholder();
+
+        document.querySelectorAll('.numeric-input').forEach(input => {
+            input.addEventListener('blur', formatInput);
+             formatInput({ target: input });
+        });
+        const laufzeitInput = document.getElementById('laufzeit');
+        laufzeitInput.addEventListener('blur', formatInput);
+        formatInput({ target: laufzeitInput });
+
+        document.querySelectorAll('select.is-placeholder').forEach(select => {
+             if (!select.value) {
+                 select.classList.add('is-placeholder');
+             }
+        });
+  });
 </script>
 </body>
 </html>
